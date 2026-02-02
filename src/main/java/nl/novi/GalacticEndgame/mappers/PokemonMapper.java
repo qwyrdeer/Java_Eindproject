@@ -5,30 +5,39 @@ import nl.novi.GalacticEndgame.dtos.pokemon.PokemonResponseDTO;
 import nl.novi.GalacticEndgame.entities.PokemonEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class PokemonMapper implements DTOMapper<PokemonRequestDTO, PokemonResponseDTO, PokemonEntity>{
+public class PokemonMapper implements DTOMapper<PokemonResponseDTO, PokemonRequestDTO, PokemonEntity>{
 
     @Override
-    public PokemonRequestDTO mapToDto(PokemonEntity model) {
-        PokemonRequestDTO dto = new PokemonRequestDTO();
+    public PokemonResponseDTO mapToDto(PokemonEntity model) {
+        PokemonResponseDTO dto = new PokemonResponseDTO();
         dto.setDexId(model.getDexId());
         dto.setName(model.getName());
         dto.setHuntCount(model.getHuntCount());
         dto.setDateFirstHunted(model.getDateFirstHunted());
-        // gif toevoegen.
+
+//        gif toevoegen.
+//        dto.setShinyImg();
 
         return dto;
     }
 
     @Override
-    public List<PokemonRequestDTO> mapToDto(List<PokemonEntity> models) {
-        return List.of();
+    public List<PokemonResponseDTO> mapToDto(List<PokemonEntity> models) {
+        List<PokemonResponseDTO> dtos = new ArrayList<>();
+        for (PokemonEntity model : models) {
+            dtos.add(mapToDto(model));
+        }
+        return dtos;
     }
 
     @Override
-    public PokemonEntity mapToEntity(PokemonResponseDTO huntModel) {
-        return null;
+    public PokemonEntity mapToEntity(PokemonRequestDTO pokemonModel) {
+        PokemonEntity entity = new PokemonEntity();
+        entity.setName(pokemonModel.getName());
+        return entity;
     }
 }
