@@ -1,12 +1,74 @@
 package nl.novi.GalacticEndgame.services;
 
+import jakarta.transaction.Transactional;
+import nl.novi.GalacticEndgame.dtos.pokemon.PokemonRequestDTO;
+import nl.novi.GalacticEndgame.dtos.pokemon.PokemonResponseDTO;
+import nl.novi.GalacticEndgame.entities.PokemonEntity;
+import nl.novi.GalacticEndgame.exeptions.PokemonNotFoundException;
+import nl.novi.GalacticEndgame.mappers.PokemonMapper;
+import nl.novi.GalacticEndgame.repositories.PokemonRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
 public class PokemonService {
 
-    findPokemonByDexId;
-    findAllPokemon;
+    private final PokemonRepository pokemonRepository;
+    private final PokemonMapper pokemonMapper;
 
-    createPokemon;
-    updatePokemon;
-    addPokemonGif;
-    deletePokemon;
+    public PokemonService(PokemonRepository pokemonRepository, PokemonMapper pokemonMapper) {
+        this.pokemonRepository = pokemonRepository;
+        this.pokemonMapper = pokemonMapper;
+    }
+
+    @Transactional
+    public PokemonResponseDTO findPokemonByDexId(Long dexId) {
+        Optional<PokemonEntity> pokemonEntity = pokemonRepository.findByDexId(dexId);
+        if (pokemonEntity.isEmpty()) {
+            throw new PokemonNotFoundException("Pokemon with dex id '# " + dexId + "' is not registered yet.");
+        }
+        return pokemonMapper.mapToDto(pokemonEntity.get());
+    }
+
+    @Transactional
+    public List<PokemonResponseDTO> findAllPokemon() {
+        return pokemonMapper.mapToDto(pokemonRepository.findAll());
+    }
+
+    @Transactional
+    public PokemonResponseDTO createPokemon(PokemonRequestDTO pokemonRequestDTO) {
+        PokemonEntity pokemonEntity = pokemonMapper.mapToEntity(pokemonRequestDTO);
+        pokemonEntity = pokemonRepository.save(pokemonEntity);
+        return pokemonMapper.mapToDto(pokemonEntity);
+    }
+
+
+    private PokemonEntity getPokemonEntity(Long dexId) {
+        Optional<PokemonEntity> pokemonEntity = pokemonRepository.findByDexId(dexId);
+        if (pokemonEntity.isEmpty()) {
+            throw new PokemonNotFoundException("Pokemon with dex id: " + dexId + " was not found.");
+        }
+        return pokemonEntity.get();
+    }
+
+    // Admin functie, nog niet in frontend meegenomen waar en hoe dit aangepast kan worden.
+    @Transactional
+    public PokemonResponseDTO updatePokemon(Long dexId, PokemonRequestDTO input) {
+        PokemonEntity existingPokemon = getPokemonEntity(dexId);
+        existingPokemon.setName(input.getName());
+        existingPokemon.setDexId(input.getDexId());
+        existingPokemon.setShinyImg(input.getShinyImg());
+        pokemonRepository.save(existingPokemon);
+        return pokemonMapper.mapToDto(existingPokemon);
+    }
+
+    // toevoegen gif?
+
+    @Transactional
+    public void deletePokemon(Long dexId) {
+        PokemonEntity pokemon = getPokemonEntity(dexId);
+        pokemonRepository.delete(pokemon);
+    }
 }
