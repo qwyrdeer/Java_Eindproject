@@ -17,7 +17,7 @@ public class PokemonMapper implements DTOMapper<PokemonRequestDTO, PokemonRespon
         dto.setName(model.getName());
         dto.setHuntCount(model.getHuntCount());
         dto.setDateFirstHunted(model.getDateFirstHunted());
-        // gif toevoegen
+        // gif toevoegen.
 
         return dto;
     }
