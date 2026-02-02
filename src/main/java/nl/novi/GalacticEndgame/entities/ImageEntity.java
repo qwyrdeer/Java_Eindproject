@@ -1,25 +1,36 @@
 package nl.novi.GalacticEndgame.entities;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import nl.novi.GalacticEndgame.enums.ImageType;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 public class ImageEntity {
-@Id
-@GeneratedValue
-private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-private String originalName;
-private String storedName;
-private String url;
-private String contentType;
+    @Column(nullable = false)
+    private String originalName;
 
-    private enum ImageType{AVATAR, PKMN_GIF}
+    @Column(nullable = false, unique = true)
+    private String storedName;
 
-private Long size;
+    @Column(nullable = false)
+    private String url;
 
-private LocalDateTime createdAt;
+    @Column(nullable = false)
+    private String contentType;
+
+    @Enumerated
+    private ImageType imageType;
+
+    private Long size;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     // ------ getters & setters
 

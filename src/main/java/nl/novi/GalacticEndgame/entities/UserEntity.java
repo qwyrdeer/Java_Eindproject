@@ -1,8 +1,11 @@
 package nl.novi.GalacticEndgame.entities;
 
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import nl.novi.GalacticEndgame.enums.BlockDuration;
+import nl.novi.GalacticEndgame.enums.UserRole;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +16,8 @@ public class UserEntity {
     private String username;
     private LocalDateTime createdAt;
 
-    private enum userRole {USER, ADMIN}
+    @Enumerated
+    private UserRole userRole;
 
     private ProfileEntity profileEntity;
     private ImageEntity userAvatar;
@@ -23,7 +27,8 @@ public class UserEntity {
     private boolean blocked;
     private String blockReason;
 
-    private enum blockDuration{DAY, WEEK, PERMANENT}
+    @Enumerated
+    private BlockDuration blockDuration;
 
     @PrePersist
     public void onCreate() {
