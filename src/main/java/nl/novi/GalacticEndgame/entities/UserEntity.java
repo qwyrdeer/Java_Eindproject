@@ -11,7 +11,10 @@ public class UserEntity {
     @GeneratedValue
     private Long userId;
     private String username;
-    private LocalDateTime createdAt;
+    protected LocalDateTime createdAt;
+
+    @Column(name = "edited_date")
+    private LocalDateTime editedAt;
 
     @Enumerated
     private UserRole userRole;
@@ -45,8 +48,14 @@ public class UserEntity {
     }
 
     @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        editedAt = createdAt;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        editedAt = LocalDateTime.now();
     }
 
     // ------ getters & setters
@@ -76,6 +85,14 @@ public class UserEntity {
         this.createdAt = createdAt;
     }
 
+    public LocalDateTime getEditedAt() {
+        return editedAt;
+    }
+
+    public void setEditedAt(LocalDateTime editedAt) {
+        this.editedAt = editedAt;
+    }
+
     public UserRole getUserRole() {
         return userRole;
     }
@@ -90,6 +107,9 @@ public class UserEntity {
 
     public void setProfileEntity(ProfileEntity profileEntity) {
         this.profileEntity = profileEntity;
+        if (profileEntity != null) {
+            profileEntity.setUser(this);
+        }
     }
 
     public ImageEntity getUserAvatar() {
