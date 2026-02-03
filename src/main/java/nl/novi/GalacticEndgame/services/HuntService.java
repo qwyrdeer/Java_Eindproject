@@ -58,7 +58,7 @@ public class HuntService {
     }
 
     @Transactional
-    public List<HuntResponseDTO> findHuntsByUsernameIgnoreCase(String username) {
+    public List<HuntResponseDTO> findHuntsByUser_UsernameIgnoreCase(String username) {
         if (username == null){
             throw new IncorrectInputException("Username cannot be null");
         }
@@ -160,8 +160,8 @@ public class HuntService {
         existingHuntEntity.setHuntMethod(huntInput.getHuntMethod());
         existingHuntEntity.setEncounters(huntInput.getEncounters());
 
-    // Status - automatische afronding (data) wanneer omgezet naar FINISHED?
-git
+    // Status - automatische afronding (data) wanneer omgezet naar FINISHED?]
+
         huntRepository.save(existingHuntEntity);
         return huntMapper.mapToDto(existingHuntEntity);
     }

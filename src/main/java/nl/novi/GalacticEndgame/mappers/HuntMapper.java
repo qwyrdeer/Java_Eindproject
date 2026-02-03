@@ -7,7 +7,6 @@ import nl.novi.GalacticEndgame.exeptions.IncorrectInputException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class HuntMapper implements DTOMapper<HuntResponseDTO, HuntRequestDTO, HuntEntity> {
 

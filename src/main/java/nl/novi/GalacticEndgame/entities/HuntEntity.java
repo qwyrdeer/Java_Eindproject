@@ -45,6 +45,20 @@ public class HuntEntity {
     @Column(name = "finished_hunt")
     private LocalDateTime finishedHunt;
 
+
+    // toevoegen aan front-end!
+
+    public void changeStatus(HuntStatus newStatus, LocalDate userInputFinishDate) {
+        this.huntStatus = newStatus;
+        if (newStatus == HuntStatus.FINISHED) {
+            if (userInputFinishDate == null) {
+                throw new IllegalArgumentException("finish date is required when finishing a hunt");
+            }
+            this.finishDate = userInputFinishDate;
+            this.finishedHunt = LocalDateTime.now();
+        }
+    }
+
     // ------ getters & setters
 
 
