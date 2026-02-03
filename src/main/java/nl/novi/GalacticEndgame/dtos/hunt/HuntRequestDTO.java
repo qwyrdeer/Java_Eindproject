@@ -15,7 +15,7 @@ public class HuntRequestDTO {
 
     @Min(0)
     @Max(99999)
-    private int encounters;
+    private Long encounters;
 
     @NotNull
     private HuntStatus huntStatus;
@@ -57,11 +57,11 @@ public class HuntRequestDTO {
         this.huntMethod = huntMethod;
     }
 
-    public int getEncounters() {
+    public Long getEncounters() {
         return encounters;
     }
 
-    public void setEncounters(int encounters) {
+    public void setEncounters(Long encounters) {
         this.encounters = encounters;
     }
 
