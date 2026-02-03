@@ -15,6 +15,7 @@ import nl.novi.GalacticEndgame.repositories.HuntRepository;
 import nl.novi.GalacticEndgame.repositories.PokemonRepository;
 import nl.novi.GalacticEndgame.repositories.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -105,15 +106,47 @@ public class HuntService {
 
     @Transactional
     public HuntResponseDTO createHunt(HuntRequestDTO huntRequestDTO) {
-        PokemonEntity pokemon = pokemonRepository.findByDexId(huntRequestDTO.getPokemonDexId());
-       // checken of pokemon bestaat en ooit is gehunt.
-        // Bestaat? dexId en Naam zelfde als in de database?
-        // Klopt de invoer? huntcount +1 bij aanmaken - geef bestaande terug
 
-        // niet gehunt? maak pokemon aan, datum + huntCount. geef pokemon terug.
+        // werkt zo niet, misschien met authenticatie later?
+//        UserEntity user = userRepository.findById(huntRequestDTO.getUserId());
+//        if (user.isEmpty()) {
+//            throw new UserNotFoundException("User not found");
+//        }
 
-        // maak hunt aan.
+        PokemonEntity pokemon = pokemonRepository.findByDexId(huntRequestDTO.getPokemonDexId())
+                .map(existing -> {
+                    if (!existing.getName().equalsIgnoreCase(huntRequestDTO.getPokemonName())) {
+                        throw new IncorrectInputException( "DexId " + huntRequestDTO.getPokemonDexId() + " already exists with name '" +
+                                existing.getName() + "', not '" + huntRequestDTO.getPokemonName() + "'" );
+                    }
+                    existing.setHuntCount(existing.getHuntCount() + 1);
+                    if (existing.getDateFirstHunted() == null) {
+                        existing.setDateFirstHunted(LocalDateTime.now());
+                    }
+                    return existing;
+                })
+                .orElseGet(() -> {
+                    PokemonEntity created = new PokemonEntity();
+                    created.setDexId(huntRequestDTO.getPokemonDexId());
+                    created.setName(huntRequestDTO.getPokemonName());
 
+                    created.setHuntCount(1L);
+                    created.setDateFirstHunted(LocalDateTime.now());
+
+                    return pokemonRepository.save(created);
+                });
+
+        HuntEntity hunt = new HuntEntity();
+        hunt.setUser(hunt.getUserEntity());
+        hunt.setPokemon(pokemon);
+
+        hunt.setUsedGame(huntRequestDTO.getUsedGame());
+        hunt.setHuntMethod(huntRequestDTO.getHuntMethod());
+        hunt.setEncounters(huntRequestDTO.getEncounters());
+//        hunt.setHuntStatus(huntRequestDTO.setHuntStatus());
+
+        HuntEntity saved = huntRepository.save(hunt);
+        return huntMapper.mapToDto(saved);
     }
 
     @Transactional
@@ -128,7 +161,7 @@ public class HuntService {
         existingHuntEntity.setEncounters(huntInput.getEncounters());
 
     // Status - automatische afronding (data) wanneer omgezet naar FINISHED?
-
+git
         huntRepository.save(existingHuntEntity);
         return huntMapper.mapToDto(existingHuntEntity);
     }

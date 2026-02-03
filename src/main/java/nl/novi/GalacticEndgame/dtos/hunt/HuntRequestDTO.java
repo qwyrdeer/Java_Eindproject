@@ -69,7 +69,7 @@ public class HuntRequestDTO {
         return huntStatus;
     }
 
-    public void setHuntStatus(HuntStatus huntStatus) {
+    public void setHuntStatus() {
         this.huntStatus = huntStatus;
     }
 

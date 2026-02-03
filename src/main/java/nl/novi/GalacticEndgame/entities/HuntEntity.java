@@ -135,4 +135,11 @@ public class HuntEntity {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public void setUser(UserEntity userEntity) {
+    }
+
+    public UserEntity getUser() {
+        return userEntity;
+    }
 }
