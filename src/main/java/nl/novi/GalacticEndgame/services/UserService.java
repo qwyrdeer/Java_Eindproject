@@ -1,15 +1,10 @@
 package nl.novi.GalacticEndgame.services;
 
 import jakarta.transaction.Transactional;
-import nl.novi.GalacticEndgame.dtos.pokemon.PokemonResponseDTO;
 import nl.novi.GalacticEndgame.dtos.user.UserRequestDTO;
 import nl.novi.GalacticEndgame.dtos.user.UserResponseDTO;
-import nl.novi.GalacticEndgame.entities.PokemonEntity;
 import nl.novi.GalacticEndgame.entities.ProfileEntity;
 import nl.novi.GalacticEndgame.entities.UserEntity;
-import nl.novi.GalacticEndgame.enums.UserRole;
-import nl.novi.GalacticEndgame.exeptions.IncorrectInputException;
-import nl.novi.GalacticEndgame.exeptions.PokemonNotFoundException;
 import nl.novi.GalacticEndgame.exeptions.UserNotFoundException;
 import nl.novi.GalacticEndgame.mappers.UserMapper;
 import nl.novi.GalacticEndgame.repositories.UserRepository;
@@ -65,6 +60,6 @@ public class UserService {
     }
 
     //admin?
-    blockUser;
+//    blockUser;
 
 }

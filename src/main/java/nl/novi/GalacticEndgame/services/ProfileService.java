@@ -1,16 +1,13 @@
 package nl.novi.GalacticEndgame.services;
 
 import jakarta.transaction.Transactional;
+import nl.novi.GalacticEndgame.dtos.profile.ProfileRequestDTO;
 import nl.novi.GalacticEndgame.dtos.profile.ProfileResponseDTO;
-import nl.novi.GalacticEndgame.dtos.user.UserResponseDTO;
 import nl.novi.GalacticEndgame.entities.ProfileEntity;
-import nl.novi.GalacticEndgame.entities.UserEntity;
 import nl.novi.GalacticEndgame.exeptions.ProfileNotFoundException;
-import nl.novi.GalacticEndgame.exeptions.UserNotFoundException;
 import nl.novi.GalacticEndgame.mappers.ProfileMapper;
 import nl.novi.GalacticEndgame.repositories.ProfileRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 public class ProfileService {
@@ -41,8 +38,23 @@ public class ProfileService {
         return profileMapper.mapToDto(profileEntity.get());
     }
 
-    updateProfile;
+    @Transactional
+    public ProfileResponseDTO updateProfileByUserId(Long userId, ProfileRequestDTO input) {
+        Optional<ProfileEntity> optional = profileRepository.findByUser_UserId(userId);
+        if (optional.isEmpty()) {
+            throw new ProfileNotFoundException("Profile of user with id " + userId + " is not found");
+        }
+        ProfileEntity profileEntity = optional.get();
 
-//    createProfile;
-//    deleteProfile;
+        profileEntity.setProfileText(input.getProfileText());
+        profileEntity.setDiscordUrl(input.getDiscordUrl());
+        profileEntity.setTwitchUrl(input.getTwitchUrl());
+        profileEntity.setYoutubeUrl(input.getYoutubeUrl());
+
+        ProfileEntity saved = profileRepository.save(profileEntity);
+        return profileMapper.mapToDto(saved);
+    }
+
+//    createProfile; bij aanmaken user
+//    deleteProfile; bij deleten user
 }

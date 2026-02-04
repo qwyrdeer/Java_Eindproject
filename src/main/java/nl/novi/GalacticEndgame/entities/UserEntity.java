@@ -1,32 +1,50 @@
 package nl.novi.GalacticEndgame.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import nl.novi.GalacticEndgame.enums.BlockDuration;
 import nl.novi.GalacticEndgame.enums.UserRole;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
+
+    @Column(name = "username", nullable = false, unique = true, length = 25)
     private String username;
+
+    @Column(name = "create_date", nullable = false)
     protected LocalDateTime createdAt;
 
     @Column(name = "edited_date")
     private LocalDateTime editedAt;
 
     @Enumerated
+    @Column(name = "user_role", nullable = false)
     private UserRole userRole;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
     private ProfileEntity profileEntity;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties(value = "contentType")
+    @JoinColumn(name = "avatar_image_id")
     private ImageEntity userAvatar;
 
+    @OneToMany(mappedBy = "user")
+    private List<HuntEntity> hunts = new ArrayList<>();
+
+    @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
     @Column(nullable = false)
     private boolean blocked = false;
     private LocalDateTime blockedAt;
+    @Column(length = 500)
     private String blockReason;
     private LocalDateTime blockedUntil;
 
@@ -166,5 +184,13 @@ public class UserEntity {
 
     public void setDuration(BlockDuration duration) {
         this.duration = duration;
+    }
+
+    public List<HuntEntity> getHunts() {
+        return hunts;
+    }
+
+    public void setHunts(List<HuntEntity> hunts) {
+        this.hunts = hunts;
     }
 }
