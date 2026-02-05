@@ -8,7 +8,7 @@ public class UserExtendedDTO {
     private Long userId;
     private String username;
     private UserRole userRole;
-    private ImageEntity avatarUrl;
+    private ImageEntity userAvatar;
     private ProfileExtendedDTO profile;
 
     // -- getter en setter
@@ -37,12 +37,12 @@ public class UserExtendedDTO {
         this.userRole = userRole;
     }
 
-    public ImageEntity getAvatarUrl() {
-        return avatarUrl;
+    public ImageEntity getUserAvatar() {
+        return userAvatar;
     }
 
-    public void setAvatarUrl(ImageEntity avatarUrl) {
-        this.avatarUrl = avatarUrl;
+    public void setUserAvatar(ImageEntity userAvatar) {
+        this.userAvatar = userAvatar;
     }
 
     public ProfileExtendedDTO getProfile() {

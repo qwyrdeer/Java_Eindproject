@@ -28,6 +28,8 @@ public class ImageEntity {
 
     private Long size;
 
+    private String path;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -97,4 +99,8 @@ public class ImageEntity {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public String getPath() {return path;}
+
+    public void setPath(String path) {this.path = path;}
 }

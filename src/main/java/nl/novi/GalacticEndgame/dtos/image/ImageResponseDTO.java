@@ -5,6 +5,7 @@ public class ImageResponseDTO {
     private String url;
     private String contentType;
     private String imageType;
+    private String path;
 
     // -- getter setter
 
@@ -38,5 +39,13 @@ public class ImageResponseDTO {
 
     public void setImageType(String imageType) {
         this.imageType = imageType;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }

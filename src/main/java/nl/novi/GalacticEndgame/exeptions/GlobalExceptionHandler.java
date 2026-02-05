@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(IncorrectInputException.class)
+    @ExceptionHandler({IncorrectInputException.class, StoringException.class})
     public ResponseEntity<ErrorResponse> handleBadRequest(IncorrectInputException ex, HttpServletRequest request) {
         ErrorResponse body = new ErrorResponse(
                 Instant.now(),
@@ -85,5 +85,7 @@ public class GlobalExceptionHandler {
                 request.getRequestURI());
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    // NO_CONTENT TOEVOEGEN?
 }
 

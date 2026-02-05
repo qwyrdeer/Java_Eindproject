@@ -3,12 +3,20 @@ package nl.novi.GalacticEndgame.services;
 import jakarta.transaction.Transactional;
 import nl.novi.GalacticEndgame.dtos.pokemon.PokemonRequestDTO;
 import nl.novi.GalacticEndgame.dtos.pokemon.PokemonResponseDTO;
+import nl.novi.GalacticEndgame.dtos.user.UserResponseDTO;
+import nl.novi.GalacticEndgame.entities.ImageEntity;
 import nl.novi.GalacticEndgame.entities.PokemonEntity;
+import nl.novi.GalacticEndgame.entities.UserEntity;
+import nl.novi.GalacticEndgame.enums.ImageType;
 import nl.novi.GalacticEndgame.exeptions.PokemonNotFoundException;
+import nl.novi.GalacticEndgame.exeptions.UserNotFoundException;
 import nl.novi.GalacticEndgame.mappers.PokemonMapper;
+import nl.novi.GalacticEndgame.repositories.ImageRepository;
 import nl.novi.GalacticEndgame.repositories.PokemonRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,10 +25,12 @@ public class PokemonService {
 
     private final PokemonRepository pokemonRepository;
     private final PokemonMapper pokemonMapper;
+    private final ImageService imageService;
 
-    public PokemonService(PokemonRepository pokemonRepository, PokemonMapper pokemonMapper) {
+    public PokemonService(PokemonRepository pokemonRepository, PokemonMapper pokemonMapper, ImageService imageService) {
         this.pokemonRepository = pokemonRepository;
         this.pokemonMapper = pokemonMapper;
+        this.imageService = imageService;
     }
 
     @Transactional
@@ -64,7 +74,20 @@ public class PokemonService {
         return pokemonMapper.mapToDto(existingPokemon);
     }
 
-    // toevoegen gif?
+    @Transactional
+    public PokemonResponseDTO uploadGif(Long dexId, MultipartFile file) {
+        Optional<PokemonEntity> optionalPokemon = pokemonRepository.findByDexId(dexId);
+        if (optionalPokemon.isEmpty()) {
+            throw new PokemonNotFoundException("Pokemon # " + dexId + " not found");
+        }
+        PokemonEntity pokemonEntity = optionalPokemon.get();
+
+        ImageEntity shinyImg = imageService.storeImage(file, ImageType.PKMN_GIF);
+        pokemonEntity.setShinyImg(shinyImg);
+
+        PokemonEntity saved = pokemonRepository.save(pokemonEntity);
+        return pokemonMapper.mapToDto(saved);
+    }
 
     @Transactional
     public void deletePokemon(Long dexId) {

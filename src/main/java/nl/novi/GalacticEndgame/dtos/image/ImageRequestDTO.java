@@ -28,4 +28,55 @@ public class ImageRequestDTO {
     @Max(value = MAX_BYTES, message = "size must be <= 2MB")
     private Long size;
 
+    private String path;
+
+    // Getter setter
+
+    public String getOriginalFileName() {
+        return originalFileName;
+    }
+
+    public void setOriginalFileName(String originalFileName) {
+        this.originalFileName = originalFileName;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getImageType() {
+        return imageType;
+    }
+
+    public void setImageType(String imageType) {
+        this.imageType = imageType;
+    }
+
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
 }
