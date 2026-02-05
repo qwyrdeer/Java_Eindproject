@@ -1,5 +1,7 @@
 package nl.novi.GalacticEndgame.mappers;
 
+import nl.novi.GalacticEndgame.dtos.profile.ProfileExtendedDTO;
+import nl.novi.GalacticEndgame.dtos.user.UserExtendedDTO;
 import nl.novi.GalacticEndgame.dtos.user.UserRequestDTO;
 import nl.novi.GalacticEndgame.dtos.user.UserResponseDTO;
 import nl.novi.GalacticEndgame.entities.UserEntity;

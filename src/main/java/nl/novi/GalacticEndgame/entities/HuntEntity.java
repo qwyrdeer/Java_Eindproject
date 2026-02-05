@@ -18,7 +18,7 @@ public class HuntEntity {
     private String usedGame;
     private String huntMethod;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private HuntStatus huntStatus;
 

@@ -1,10 +1,14 @@
 package nl.novi.GalacticEndgame.dtos.profile;
 
+import nl.novi.GalacticEndgame.dtos.user.UserExtendedDTO;
+
 public class ProfileExtendedDTO {
     private String profileText;
     private String twitchUrl;
     private String youtubeUrl;
     private String discordUrl;
+
+    private UserExtendedDTO user;
 
     public String getProfileText() {
         return profileText;
@@ -36,5 +40,13 @@ public class ProfileExtendedDTO {
 
     public void setDiscordUrl(String discordUrl) {
         this.discordUrl = discordUrl;
+    }
+
+    public UserExtendedDTO getUser() {
+        return user;
+    }
+
+    public void setUser(UserExtendedDTO user) {
+    this.user = user;
     }
 }

@@ -19,12 +19,10 @@ import java.io.IOException;
 @RequestMapping("/images")
 public class ImageController {
 
-    private final ImageService imageService;
     private final UserService userService;
     private final PokemonService pokemonService;
 
-    public ImageController(ImageService imageService, UserService userService, PokemonService pokemonService) {
-        this.imageService = imageService;
+    public ImageController(UserService userService, PokemonService pokemonService) {
         this.userService = userService;
         this.pokemonService = pokemonService;
     }
@@ -47,7 +45,7 @@ public class ImageController {
     }
 
     @GetMapping("/{id}/pkmn-gif")
-    public ResponseEntity<Resource>  getShinyImg(@PathVariable ("shiny_img") Long dexId, HttpServletRequest request) {
+    public ResponseEntity<Resource>  getShinyImg(@PathVariable Long dexId, HttpServletRequest request) {
         Resource resource = (Resource) pokemonService.getShinyImg(dexId);
         String mimeType;
         try{

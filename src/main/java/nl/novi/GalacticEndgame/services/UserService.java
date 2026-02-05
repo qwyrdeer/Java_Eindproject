@@ -30,10 +30,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO findUserById(Long id) {
-        Optional<UserEntity> userEntity = userRepository.findById(id);
+    public UserResponseDTO findUserByUserId(Long userId) {
+        Optional<UserEntity> userEntity = userRepository.findByUserId(userId);
         if (userEntity.isEmpty()) {
-            throw new UserNotFoundException("User with id: " + id + " is not registered yet.");
+            throw new UserNotFoundException("User with id: " + userId + " is not registered yet.");
         }
         return userMapper.mapToDto(userEntity.get());
     }

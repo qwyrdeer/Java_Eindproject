@@ -20,7 +20,7 @@ public class PokemonEntity {
     private String name;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "pkmn_gif")
+    @JoinColumn(name = "shiny_gif")
     @JsonIgnoreProperties(value = "contentType")
     private ImageEntity shinyImg;
 

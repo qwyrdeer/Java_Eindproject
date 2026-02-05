@@ -9,6 +9,7 @@ public class UserExtendedDTO {
     private String username;
     private UserRole userRole;
     private ImageEntity userAvatar;
+
     private ProfileExtendedDTO profile;
 
     // -- getter en setter

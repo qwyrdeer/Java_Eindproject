@@ -3,7 +3,6 @@ package nl.novi.GalacticEndgame.controllers;
 import jakarta.validation.Valid;
 import nl.novi.GalacticEndgame.dtos.profile.ProfileRequestDTO;
 import nl.novi.GalacticEndgame.dtos.profile.ProfileResponseDTO;
-import nl.novi.GalacticEndgame.dtos.user.UserResponseDTO;
 import nl.novi.GalacticEndgame.services.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +35,5 @@ public class ProfileController {
         ProfileResponseDTO profile = profileService.updateProfileByUserId(userId, dto);
         return new ResponseEntity<>(profile, HttpStatus.OK);
     }
-
 
 }

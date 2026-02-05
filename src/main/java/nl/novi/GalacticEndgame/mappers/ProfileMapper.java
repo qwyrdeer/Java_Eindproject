@@ -1,7 +1,9 @@
 package nl.novi.GalacticEndgame.mappers;
 
+import nl.novi.GalacticEndgame.dtos.profile.ProfileExtendedDTO;
 import nl.novi.GalacticEndgame.dtos.profile.ProfileRequestDTO;
 import nl.novi.GalacticEndgame.dtos.profile.ProfileResponseDTO;
+import nl.novi.GalacticEndgame.dtos.user.UserExtendedDTO;
 import nl.novi.GalacticEndgame.entities.ProfileEntity;
 import nl.novi.GalacticEndgame.entities.UserEntity;
 import org.springframework.stereotype.Component;
@@ -20,8 +22,6 @@ public class ProfileMapper implements DTOMapper<ProfileResponseDTO, ProfileReque
         dto.setTwitchUrl(model.getTwitchUrl());
         dto.setYoutubeUrl(model.getYoutubeUrl());
         dto.setDiscordUrl(model.getDiscordUrl());
-
-        UserEntity user = model.getUser();
 
         return dto;
     }
