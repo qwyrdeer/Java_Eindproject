@@ -5,20 +5,20 @@ import nl.novi.GalacticEndgame.dtos.hunt.HuntRequestDTO;
 import nl.novi.GalacticEndgame.dtos.hunt.HuntResponseDTO;
 import nl.novi.GalacticEndgame.entities.HuntEntity;
 import nl.novi.GalacticEndgame.entities.PokemonEntity;
-import nl.novi.GalacticEndgame.entities.UserEntity;
 import nl.novi.GalacticEndgame.enums.HuntStatus;
 import nl.novi.GalacticEndgame.exeptions.HuntNotFoundException;
 import nl.novi.GalacticEndgame.exeptions.IncorrectInputException;
-import nl.novi.GalacticEndgame.exeptions.UserNotFoundException;
 import nl.novi.GalacticEndgame.mappers.HuntMapper;
 import nl.novi.GalacticEndgame.repositories.HuntRepository;
 import nl.novi.GalacticEndgame.repositories.PokemonRepository;
 import nl.novi.GalacticEndgame.repositories.UserRepository;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class HuntService {
 
     private final HuntMapper huntMapper;

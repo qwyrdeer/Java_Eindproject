@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +36,7 @@ public class UserEntity {
     @JoinColumn(name = "avatar_image_id")
     private ImageEntity userAvatar;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "userEntity")
     private List<HuntEntity> hunts = new ArrayList<>();
 
     @Column(name = "last_login")

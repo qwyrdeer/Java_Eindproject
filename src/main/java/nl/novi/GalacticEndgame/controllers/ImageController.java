@@ -1,10 +1,10 @@
 package nl.novi.GalacticEndgame.controllers;
 
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import nl.novi.GalacticEndgame.enums.ImageType;
 import nl.novi.GalacticEndgame.services.ImageService;
+import nl.novi.GalacticEndgame.services.PokemonService;
 import nl.novi.GalacticEndgame.services.UserService;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,22 +21,46 @@ public class ImageController {
 
     private final ImageService imageService;
     private final UserService userService;
+    private final PokemonService pokemonService;
 
-    public ImageController(ImageService imageService, UserService userService) {
+    public ImageController(ImageService imageService, UserService userService, PokemonService pokemonService) {
         this.imageService = imageService;
         this.userService = userService;
+        this.pokemonService = pokemonService;
     }
 
-    @GetMapping("/{id}/avatar")
-    public ResponseEntity<Resource> getAvatar(@PathVariable Long userId, HttpServletRequest request) {
-        Resource resource = userService.getUserAvatar(userId);
-        return getImageResponse(id, ImageType.AVATAR, request);
+    @GetMapping("/{userId}/avatar")
+    public ResponseEntity<Resource>  getAvatar(@PathVariable ("user_id") Long userId, HttpServletRequest request) {
+        Resource resource = (Resource) userService.getUserAvatar(userId);
+        String mimeType;
+        try{
+            mimeType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        } catch (IOException e) {
+            mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        }
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.parseMediaType(mimeType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline;fileName=" + resource.getFilename())
+                .body(resource);
     }
 
     @GetMapping("/{id}/pkmn-gif")
-    public ResponseEntity<Resource> getPokemonGif(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<Resource>  getShinyImg(@PathVariable ("shiny_img") Long dexId, HttpServletRequest request) {
+        Resource resource = (Resource) pokemonService.getShinyImg(dexId);
+        String mimeType;
+        try{
+            mimeType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        } catch (IOException e) {
+            mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        }
 
-        return getImageResponse(id, ImageType.PKMN_GIF, request);
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.parseMediaType(mimeType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline;fileName=" + resource.getFilename())
+                .body(resource);
     }
 
 }

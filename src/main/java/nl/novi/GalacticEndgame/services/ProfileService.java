@@ -7,9 +7,11 @@ import nl.novi.GalacticEndgame.entities.ProfileEntity;
 import nl.novi.GalacticEndgame.exeptions.ProfileNotFoundException;
 import nl.novi.GalacticEndgame.mappers.ProfileMapper;
 import nl.novi.GalacticEndgame.repositories.ProfileRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Service
 public class ProfileService {
 
     private ProfileRepository profileRepository;

@@ -3,7 +3,6 @@ package nl.novi.GalacticEndgame.controllers;
 import jakarta.validation.Valid;
 import nl.novi.GalacticEndgame.dtos.pokemon.PokemonRequestDTO;
 import nl.novi.GalacticEndgame.dtos.pokemon.PokemonResponseDTO;
-import nl.novi.GalacticEndgame.dtos.user.UserResponseDTO;
 import nl.novi.GalacticEndgame.helpers.UrlHelper;
 import nl.novi.GalacticEndgame.services.PokemonService;
 import org.springframework.http.HttpStatus;

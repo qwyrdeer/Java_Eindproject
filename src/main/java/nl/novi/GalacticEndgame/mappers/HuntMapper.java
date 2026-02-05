@@ -4,10 +4,12 @@ import nl.novi.GalacticEndgame.dtos.hunt.HuntRequestDTO;
 import nl.novi.GalacticEndgame.dtos.hunt.HuntResponseDTO;
 import nl.novi.GalacticEndgame.entities.HuntEntity;
 import nl.novi.GalacticEndgame.exeptions.IncorrectInputException;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class HuntMapper implements DTOMapper<HuntResponseDTO, HuntRequestDTO, HuntEntity> {
 
     private final PokemonMapper pokemonMapper;

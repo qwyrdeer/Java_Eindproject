@@ -1,6 +1,5 @@
 package nl.novi.GalacticEndgame.services;
 
-import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import nl.novi.GalacticEndgame.dtos.user.UserRequestDTO;
 import nl.novi.GalacticEndgame.dtos.user.UserResponseDTO;
@@ -11,11 +10,13 @@ import nl.novi.GalacticEndgame.enums.ImageType;
 import nl.novi.GalacticEndgame.exeptions.UserNotFoundException;
 import nl.novi.GalacticEndgame.mappers.UserMapper;
 import nl.novi.GalacticEndgame.repositories.UserRepository;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class UserService {
 
     private UserRepository userRepository;
@@ -68,11 +69,9 @@ public class UserService {
     @Transactional
     public UserResponseDTO uploadAvatar(Long userId, MultipartFile file) {
         Optional<UserEntity> optionalUser = userRepository.findById(userId);
-
         if (optionalUser.isEmpty()) {
             throw new UserNotFoundException("User " + userId + " not found");
         }
-
         UserEntity userEntity = optionalUser.get();
 
         ImageEntity avatar = imageService.storeImage(file, ImageType.AVATAR);
@@ -84,6 +83,15 @@ public class UserService {
 
 
     public void deleteUser(Long dexId) {
+    }
+
+    @Transactional
+    public ImageEntity getUserAvatar(Long userId) {
+        Optional<UserEntity> optionalUser = userRepository.findById(userId);
+        if(optionalUser.isEmpty()){
+            throw new UserNotFoundException("User " + userId + " not found.");
+        }
+        return optionalUser.get().getUserAvatar();
     }
 
     //admin?

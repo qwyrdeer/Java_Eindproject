@@ -3,15 +3,11 @@ package nl.novi.GalacticEndgame.services;
 import jakarta.transaction.Transactional;
 import nl.novi.GalacticEndgame.dtos.pokemon.PokemonRequestDTO;
 import nl.novi.GalacticEndgame.dtos.pokemon.PokemonResponseDTO;
-import nl.novi.GalacticEndgame.dtos.user.UserResponseDTO;
 import nl.novi.GalacticEndgame.entities.ImageEntity;
 import nl.novi.GalacticEndgame.entities.PokemonEntity;
-import nl.novi.GalacticEndgame.entities.UserEntity;
 import nl.novi.GalacticEndgame.enums.ImageType;
 import nl.novi.GalacticEndgame.exeptions.PokemonNotFoundException;
-import nl.novi.GalacticEndgame.exeptions.UserNotFoundException;
 import nl.novi.GalacticEndgame.mappers.PokemonMapper;
-import nl.novi.GalacticEndgame.repositories.ImageRepository;
 import nl.novi.GalacticEndgame.repositories.PokemonRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -87,6 +83,15 @@ public class PokemonService {
 
         PokemonEntity saved = pokemonRepository.save(pokemonEntity);
         return pokemonMapper.mapToDto(saved);
+    }
+
+    @Transactional
+    public ImageEntity getShinyImg(Long dexId) {
+        Optional<PokemonEntity> optionalPokemon = pokemonRepository.findByDexId(dexId);
+        if(optionalPokemon.isEmpty()){
+            throw new PokemonNotFoundException("Pokemon # " + dexId + " not found.");
+        }
+        return optionalPokemon.get().getShinyImg();
     }
 
     @Transactional

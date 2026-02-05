@@ -1,7 +1,6 @@
 package nl.novi.GalacticEndgame.controllers;
 
 import jakarta.validation.Valid;
-import nl.novi.GalacticEndgame.dtos.image.ImageResponseDTO;
 import nl.novi.GalacticEndgame.dtos.user.UserRequestDTO;
 import nl.novi.GalacticEndgame.dtos.user.UserResponseDTO;
 import nl.novi.GalacticEndgame.services.UserService;

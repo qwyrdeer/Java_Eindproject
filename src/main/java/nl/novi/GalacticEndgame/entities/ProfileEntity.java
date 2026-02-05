@@ -2,6 +2,7 @@ package nl.novi.GalacticEndgame.entities;
 
 import jakarta.persistence.*;
 
+@Entity
 public class ProfileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

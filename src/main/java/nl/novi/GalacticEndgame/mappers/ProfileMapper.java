@@ -4,10 +4,12 @@ import nl.novi.GalacticEndgame.dtos.profile.ProfileRequestDTO;
 import nl.novi.GalacticEndgame.dtos.profile.ProfileResponseDTO;
 import nl.novi.GalacticEndgame.entities.ProfileEntity;
 import nl.novi.GalacticEndgame.entities.UserEntity;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class ProfileMapper implements DTOMapper<ProfileResponseDTO, ProfileRequestDTO, ProfileEntity> {
 
     @Override
