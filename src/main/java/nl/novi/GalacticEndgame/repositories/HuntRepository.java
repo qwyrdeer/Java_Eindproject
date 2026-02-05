@@ -1,7 +1,6 @@
 package nl.novi.GalacticEndgame.repositories;
 
 import nl.novi.GalacticEndgame.entities.HuntEntity;
-import nl.novi.GalacticEndgame.entities.PokemonEntity;
 import nl.novi.GalacticEndgame.enums.HuntStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,8 +10,9 @@ public interface HuntRepository extends JpaRepository<HuntEntity, Long> {
 
     List<HuntEntity> findByHuntStatus(HuntStatus status);
     List<HuntEntity> findByUser_UserIdAndHuntStatus(Long userId, HuntStatus status);
-    List<HuntEntity> findHuntsByUser_UserId(Long userId);
-    List<HuntEntity> findHuntsByPokemon(PokemonEntity pokemon);
+    List<HuntEntity> findByUser_UserId(Long userId);
+    List<HuntEntity> findByUser_UsernameIgnoreCase(String username);
+    List<HuntEntity> findByPokemonIgnoreCase(String name);
 
     // is voorgesteld, maar nog ff checken \/
     @Override
@@ -20,4 +20,5 @@ public interface HuntRepository extends JpaRepository<HuntEntity, Long> {
 
     @Override
     void delete(HuntEntity entity);
+
 }

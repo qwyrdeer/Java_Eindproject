@@ -14,6 +14,7 @@ public class UrlHelper {
         this.request = request;
     }
 
+
     public  String getCurrentUrlString() {
         return request.getRequestURL().toString();
     }
@@ -22,7 +23,7 @@ public class UrlHelper {
         return request.getRequestURL().toString() + "/" + id.toString();
     }
 
-    public URI getCurrentUrl() {
+    public  URI getCurrentUrl() {
         return convertToURI(getCurrentUrlString());
     }
 
@@ -34,4 +35,3 @@ public class UrlHelper {
         return URI.create(uri);
     }
 }
-

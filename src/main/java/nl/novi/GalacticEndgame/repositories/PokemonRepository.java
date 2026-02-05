@@ -12,6 +12,7 @@ public interface PokemonRepository extends JpaRepository<PokemonEntity, Long> {
     Optional<PokemonEntity> findByName(String name);
     List<PokemonEntity> findAll();
 
+    // is voorgesteld, maar nog ff checken \/
     @Override
     <S extends PokemonEntity> S save(S entity);
 }

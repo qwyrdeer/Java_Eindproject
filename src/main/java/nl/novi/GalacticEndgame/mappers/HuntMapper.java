@@ -3,29 +3,52 @@ package nl.novi.GalacticEndgame.mappers;
 import nl.novi.GalacticEndgame.dtos.hunt.HuntRequestDTO;
 import nl.novi.GalacticEndgame.dtos.hunt.HuntResponseDTO;
 import nl.novi.GalacticEndgame.entities.HuntEntity;
+import nl.novi.GalacticEndgame.exeptions.IncorrectInputException;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class HuntMapper implements DTOMapper<HuntRequestDTO, HuntResponseDTO, HuntEntity> {
+@Component
+public class HuntMapper implements DTOMapper<HuntResponseDTO, HuntRequestDTO, HuntEntity> {
+
     private final PokemonMapper pokemonMapper;
 
     public HuntMapper(PokemonMapper pokemonMapper) {
         this.pokemonMapper = pokemonMapper;
     }
 
-
     @Override
-    public HuntRequestDTO mapToDto(HuntEntity model) {
-        return null;
+    public HuntResponseDTO mapToDto(HuntEntity model) {
+        HuntResponseDTO dto = new HuntResponseDTO();
+        dto.setId(model.getId());
+        dto.setUsedGame(model.getUsedGame());
+        dto.setHuntMethod(model.getHuntMethod());
+        dto.setEncounters(model.getEncounters());
+        dto.setHuntStatus(model.getHuntStatus());
+
+        dto.setCreateDate(model.getCreateDate());
+        dto.setFinishDate(model.getFinishDate());
+        dto.setEditDate(model.getEditDate());
+        dto.setFinishedHunt(model.getFinishedHunt());
+
+        dto.setPokemon(pokemonMapper.mapToDto(model.getPokemon()));
+
+        return dto;
     }
 
     @Override
-    public List<HuntRequestDTO> mapToDto(List<HuntEntity> models) {
-        return List.of();
+    public List<HuntResponseDTO> mapToDto(List<HuntEntity> models) {
+        List<HuntResponseDTO> dtos = new ArrayList<>();
+        for (HuntEntity model : models) {
+            dtos.add(mapToDto(model));
+        }
+        return dtos;
     }
 
     @Override
-    public HuntEntity mapToEntity(HuntResponseDTO huntModel) {
-        return null;
+    public HuntEntity mapToEntity(HuntRequestDTO huntModel) {
+        throw new IncorrectInputException("Not implemented");
     }
+
 }
