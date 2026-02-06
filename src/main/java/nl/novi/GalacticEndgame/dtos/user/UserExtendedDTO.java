@@ -4,15 +4,26 @@ import nl.novi.GalacticEndgame.dtos.profile.ProfileExtendedDTO;
 import nl.novi.GalacticEndgame.entities.ImageEntity;
 import nl.novi.GalacticEndgame.enums.UserRole;
 
+import java.time.LocalDateTime;
+
 public class UserExtendedDTO {
+
     private Long userId;
     private String username;
-    private UserRole userRole;
+
     private ImageEntity userAvatar;
+    private UserRole userRole;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime lastLogin;
+
+    private boolean blocked;
+    private LocalDateTime blockedUntil;
+    private String blockReason;
 
     private ProfileExtendedDTO profile;
 
-    // -- getter en setter
+// -- getter en setter
 
     public Long getUserId() {
         return userId;
@@ -30,6 +41,14 @@ public class UserExtendedDTO {
         this.username = username;
     }
 
+    public ImageEntity getUserAvatar() {
+        return userAvatar;
+    }
+
+    public void setUserAvatar(ImageEntity userAvatar) {
+        this.userAvatar = userAvatar;
+    }
+
     public UserRole getUserRole() {
         return userRole;
     }
@@ -38,12 +57,44 @@ public class UserExtendedDTO {
         this.userRole = userRole;
     }
 
-    public ImageEntity getUserAvatar() {
-        return userAvatar;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setUserAvatar(ImageEntity userAvatar) {
-        this.userAvatar = userAvatar;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(LocalDateTime lastLogin) {
+        this.lastLogin = lastLogin;
+    }
+
+    public boolean isBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
+    }
+
+    public LocalDateTime getBlockedUntil() {
+        return blockedUntil;
+    }
+
+    public void setBlockedUntil(LocalDateTime blockedUntil) {
+        this.blockedUntil = blockedUntil;
+    }
+
+    public String getBlockReason() {
+        return blockReason;
+    }
+
+    public void setBlockReason(String blockReason) {
+        this.blockReason = blockReason;
     }
 
     public ProfileExtendedDTO getProfile() {

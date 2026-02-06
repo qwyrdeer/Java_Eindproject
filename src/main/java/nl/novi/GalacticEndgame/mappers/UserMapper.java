@@ -1,7 +1,5 @@
 package nl.novi.GalacticEndgame.mappers;
 
-import nl.novi.GalacticEndgame.dtos.profile.ProfileExtendedDTO;
-import nl.novi.GalacticEndgame.dtos.user.UserExtendedDTO;
 import nl.novi.GalacticEndgame.dtos.user.UserRequestDTO;
 import nl.novi.GalacticEndgame.dtos.user.UserResponseDTO;
 import nl.novi.GalacticEndgame.entities.UserEntity;
@@ -20,11 +18,6 @@ public class UserMapper implements DTOMapper<UserResponseDTO, UserRequestDTO, Us
         UserResponseDTO dto = new UserResponseDTO();
         dto.setUserId(model.getUserId());
         dto.setUsername(model.getUsername());
-        dto.setCreatedAt(model.getCreatedAt());
-        dto.setLastLogin(model.getLastLogin());
-        dto.setBlocked(model.isBlocked());
-        dto.setBlockedUntil(model.getBlockedUntil());
-        dto.setBlockReason(model.getBlockReason());
         dto.setUserAvatar(model.getUserAvatar());
         dto.setUserRole(model.getUserRole());
         return dto;
