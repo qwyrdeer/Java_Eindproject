@@ -1,55 +1,47 @@
 package nl.novi.GalacticEndgame.dtos.user;
 
-import nl.novi.GalacticEndgame.dtos.profile.ProfileExtendedDTO;
-import nl.novi.GalacticEndgame.entities.ImageEntity;
-import nl.novi.GalacticEndgame.enums.UserRole;
+import java.time.LocalDateTime;
 
-public class UserExtendedDTO {
-    private Long userId;
-    private String username;
-    private UserRole userRole;
-    private ImageEntity userAvatar;
-    private ProfileExtendedDTO profile;
+public class UserExtendedDTO extends UserResponseDTO {
+    private LocalDateTime lastLogin;
 
-    // -- getter en setter
+    private boolean blocked;
+    private LocalDateTime blockedUntil;
+    private String blockReason;
 
-    public Long getUserId() {
-        return userId;
+// -- getter en setter
+
+
+    public LocalDateTime getLastLogin() {
+        return lastLogin;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setLastLogin(LocalDateTime lastLogin) {
+        this.lastLogin = lastLogin;
     }
 
-    public String getUsername() {
-        return username;
+    public boolean isBlocked() {
+        return blocked;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
     }
 
-    public UserRole getUserRole() {
-        return userRole;
+    public LocalDateTime getBlockedUntil() {
+        return blockedUntil;
     }
 
-    public void setUserRole(UserRole userRole) {
-        this.userRole = userRole;
+    public void setBlockedUntil(LocalDateTime blockedUntil) {
+        this.blockedUntil = blockedUntil;
     }
 
-    public ImageEntity getUserAvatar() {
-        return userAvatar;
+    public String getBlockReason() {
+        return blockReason;
     }
 
-    public void setUserAvatar(ImageEntity userAvatar) {
-        this.userAvatar = userAvatar;
+    public void setBlockReason(String blockReason) {
+        this.blockReason = blockReason;
     }
 
-    public ProfileExtendedDTO getProfile() {
-        return profile;
-    }
-
-    public void setProfile(ProfileExtendedDTO profile) {
-        this.profile = profile;
-    }
 }

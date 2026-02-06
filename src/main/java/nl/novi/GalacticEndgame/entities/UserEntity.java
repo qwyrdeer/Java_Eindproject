@@ -2,6 +2,7 @@ package nl.novi.GalacticEndgame.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import nl.novi.GalacticEndgame.dtos.profile.ProfileResponseDTO;
 import nl.novi.GalacticEndgame.enums.BlockDuration;
 import nl.novi.GalacticEndgame.enums.UserRole;
 
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "users")
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +26,7 @@ public class UserEntity {
     @Column(name = "edited_date")
     private LocalDateTime editedAt;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(name = "user_role", nullable = false)
     private UserRole userRole;
 
@@ -33,7 +35,7 @@ public class UserEntity {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties(value = "contentType")
-    @JoinColumn(name = "avatar_image_id")
+    @JoinColumn(name = "avatar_image")
     private ImageEntity userAvatar;
 
     @OneToMany(mappedBy = "userEntity")
@@ -120,15 +122,12 @@ public class UserEntity {
         this.userRole = userRole;
     }
 
-    public ProfileEntity getProfileEntity() {
+    public ProfileEntity getProfile() {
         return profileEntity;
     }
 
-    public void setProfileEntity(ProfileEntity profileEntity) {
+    public void setProfile(ProfileEntity profileEntity) {
         this.profileEntity = profileEntity;
-        if (profileEntity != null) {
-            profileEntity.setUser(this);
-        }
     }
 
     public ImageEntity getUserAvatar() {

@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "images")
 public class ImageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,14 +20,12 @@ public class ImageEntity {
     private String storedName;
 
     @Column(nullable = false)
-    private String url;
-
-    @Column(nullable = false)
     private String contentType;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private ImageType imageType;
 
+    private String url;
     private Long size;
 
     private String path;
@@ -59,14 +58,6 @@ public class ImageEntity {
 
     public void setStoredName(String storedName) {
         this.storedName = storedName;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
 
     public String getContentType() {
@@ -104,4 +95,12 @@ public class ImageEntity {
     public String getPath() {return path;}
 
     public void setPath(String path) {this.path = path;}
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

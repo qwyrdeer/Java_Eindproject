@@ -3,7 +3,6 @@ package nl.novi.GalacticEndgame.mappers;
 import nl.novi.GalacticEndgame.dtos.profile.ProfileRequestDTO;
 import nl.novi.GalacticEndgame.dtos.profile.ProfileResponseDTO;
 import nl.novi.GalacticEndgame.entities.ProfileEntity;
-import nl.novi.GalacticEndgame.entities.UserEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -15,13 +14,10 @@ public class ProfileMapper implements DTOMapper<ProfileResponseDTO, ProfileReque
     @Override
     public ProfileResponseDTO mapToDto(ProfileEntity model) {
         ProfileResponseDTO dto = new ProfileResponseDTO();
-        dto.setId(model.getId());
         dto.setProfileText(model.getProfileText());
         dto.setTwitchUrl(model.getTwitchUrl());
         dto.setYoutubeUrl(model.getYoutubeUrl());
         dto.setDiscordUrl(model.getDiscordUrl());
-
-        UserEntity user = model.getUser();
 
         return dto;
     }

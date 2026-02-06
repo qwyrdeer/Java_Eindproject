@@ -1,28 +1,22 @@
 package nl.novi.GalacticEndgame.dtos.user;
 
+import nl.novi.GalacticEndgame.dtos.hunt.HuntResponseDTO;
 import nl.novi.GalacticEndgame.dtos.profile.ProfileResponseDTO;
-import nl.novi.GalacticEndgame.entities.ImageEntity;
 import nl.novi.GalacticEndgame.enums.UserRole;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class UserResponseDTO {
     private Long userId;
     private String username;
-
-    private ImageEntity userAvatar;
     private UserRole userRole;
-
+    private String userAvatarUrl;
     private LocalDateTime createdAt;
-    private LocalDateTime lastLogin;
-
-    private boolean blocked;
-    private LocalDateTime blockedUntil;
-    private String blockReason;
-
     private ProfileResponseDTO profile;
+    private List<HuntResponseDTO> hunts;
 
-// -- getter en setter
+    // -- getter en setter
 
     public Long getUserId() {
         return userId;
@@ -40,14 +34,6 @@ public class UserResponseDTO {
         this.username = username;
     }
 
-    public ImageEntity getUserAvatar() {
-        return userAvatar;
-    }
-
-    public void setUserAvatar(ImageEntity userAvatar) {
-        this.userAvatar = userAvatar;
-    }
-
     public UserRole getUserRole() {
         return userRole;
     }
@@ -56,44 +42,12 @@ public class UserResponseDTO {
         this.userRole = userRole;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public String getUserAvatarUrl() {
+        return userAvatarUrl;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getLastLogin() {
-        return lastLogin;
-    }
-
-    public void setLastLogin(LocalDateTime lastLogin) {
-        this.lastLogin = lastLogin;
-    }
-
-    public boolean isBlocked() {
-        return blocked;
-    }
-
-    public void setBlocked(boolean blocked) {
-        this.blocked = blocked;
-    }
-
-    public LocalDateTime getBlockedUntil() {
-        return blockedUntil;
-    }
-
-    public void setBlockedUntil(LocalDateTime blockedUntil) {
-        this.blockedUntil = blockedUntil;
-    }
-
-    public String getBlockReason() {
-        return blockReason;
-    }
-
-    public void setBlockReason(String blockReason) {
-        this.blockReason = blockReason;
+    public void setUserAvatarUrl(String userAvatarUrl) {
+        this.userAvatarUrl = userAvatarUrl;
     }
 
     public ProfileResponseDTO getProfile() {
@@ -104,4 +58,19 @@ public class UserResponseDTO {
         this.profile = profile;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public List<HuntResponseDTO> getHunts() {
+        return hunts;
+    }
+
+    public void setHunts(List<HuntResponseDTO> hunts) {
+        this.hunts = hunts;
+    }
 }

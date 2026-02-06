@@ -9,13 +9,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class HuntResponseDTO {
+
     private Long id;
     private String usedGame;
     private String huntMethod;
     private HuntStatus huntStatus;
     private Long encounters;
     private PokemonResponseDTO pokemon;
-    private UserEntity userEntity;
+    private Long userId;
     private LocalDateTime createDate;
     private LocalDate finishDate;
     private LocalDateTime editDate;
@@ -71,12 +72,12 @@ public class HuntResponseDTO {
         this.pokemon = pokemon;
     }
 
-    public UserEntity getUserEntity() {
-        return userEntity;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUserEntity(UserEntity userEntity) {
-        this.userEntity = userEntity;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public LocalDateTime getCreateDate() {

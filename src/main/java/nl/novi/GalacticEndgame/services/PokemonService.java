@@ -9,6 +9,7 @@ import nl.novi.GalacticEndgame.enums.ImageType;
 import nl.novi.GalacticEndgame.exeptions.PokemonNotFoundException;
 import nl.novi.GalacticEndgame.mappers.PokemonMapper;
 import nl.novi.GalacticEndgame.repositories.PokemonRepository;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -86,12 +87,14 @@ public class PokemonService {
     }
 
     @Transactional
-    public ImageEntity getShinyImg(Long dexId) {
-        Optional<PokemonEntity> optionalPokemon = pokemonRepository.findByDexId(dexId);
-        if(optionalPokemon.isEmpty()){
-            throw new PokemonNotFoundException("Pokemon # " + dexId + " not found.");
-        }
-        return optionalPokemon.get().getShinyImg();
+    public Resource loadShinyImg(Long dexId) {
+        PokemonEntity pokemon = pokemonRepository.findByDexId(dexId)
+                .orElseThrow(() ->
+                        new PokemonNotFoundException("Image of Pokemon # " + dexId + " not found.")
+                );
+        ImageEntity shinyImg = pokemon.getShinyImg();
+
+        return imageService.loadAsResource(shinyImg.getUrl());
     }
 
     @Transactional

@@ -1,21 +1,12 @@
 package nl.novi.GalacticEndgame.dtos.profile;
 
 public class ProfileResponseDTO {
-    private Long id;
     private String profileText;
     private String twitchUrl;
     private String youtubeUrl;
     private String discordUrl;
 
     // -- getter en setter
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getProfileText() {
         return profileText;
