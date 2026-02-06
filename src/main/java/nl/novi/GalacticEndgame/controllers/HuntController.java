@@ -7,8 +7,10 @@ import nl.novi.GalacticEndgame.enums.HuntStatus;
 import nl.novi.GalacticEndgame.helpers.UrlHelper;
 import nl.novi.GalacticEndgame.services.HuntService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -54,10 +56,10 @@ public class HuntController {
         return new ResponseEntity<>(hunt, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<HuntResponseDTO> createHunt(@RequestBody @Valid HuntRequestDTO huntModel) {
-        HuntResponseDTO newHunt = huntService.createHunt(huntModel);
-        return ResponseEntity.created(urlHelper.getCurrentUrlWithId(newHunt.getId())).body(newHunt);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<HuntResponseDTO> createHunt(@RequestPart("data") @Valid HuntRequestDTO data, @RequestPart(value = "shinyImg", required = false) MultipartFile shinyImg) {
+        HuntResponseDTO hunt = huntService.createHunt(data, shinyImg);
+        return new ResponseEntity<>(hunt, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

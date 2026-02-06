@@ -15,6 +15,7 @@ import nl.novi.GalacticEndgame.repositories.HuntRepository;
 import nl.novi.GalacticEndgame.repositories.PokemonRepository;
 import nl.novi.GalacticEndgame.repositories.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,12 +28,14 @@ public class HuntService {
     private final HuntRepository huntRepository;
     private final UserRepository userRepository;
     private final PokemonRepository pokemonRepository;
+    private final PokemonService pokemonService;
 
-    public HuntService(HuntMapper huntMapper, HuntRepository huntRepository, UserRepository userRepository, PokemonRepository pokemonRepository) {
+    public HuntService(HuntMapper huntMapper, HuntRepository huntRepository, UserRepository userRepository, PokemonRepository pokemonRepository, PokemonService pokemonService) {
         this.huntMapper = huntMapper;
         this.huntRepository = huntRepository;
         this.userRepository = userRepository;
         this.pokemonRepository = pokemonRepository;
+        this.pokemonService = pokemonService;
     }
 
     @Transactional
@@ -107,11 +110,9 @@ public class HuntService {
     }
 
     @Transactional
-    public HuntResponseDTO createHunt(HuntRequestDTO input) {
+    public HuntResponseDTO createHunt(HuntRequestDTO input, MultipartFile shinyImg) {
         UserEntity user = userRepository.findById(input.getUserId())
-                .orElseThrow(() ->
-                        new UserNotFoundException("User not found")
-                );
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         PokemonEntity pokemon = pokemonRepository.findByDexId(input.getPokemonDexId())
                 .map(existing -> {
@@ -126,14 +127,18 @@ public class HuntService {
                     return existing;
                 })
                 .orElseGet(() -> {
+                    if (shinyImg == null || shinyImg.isEmpty()) {
+                        throw new IncorrectInputException("Adding a shiny GIF is required for new Pokémon");}
                     PokemonEntity created = new PokemonEntity();
                     created.setDexId(input.getPokemonDexId());
                     created.setName(input.getPokemonName());
-
                     created.setHuntCount(1L);
                     created.setDateFirstHunted(LocalDateTime.now());
 
-                    return pokemonRepository.save(created);
+                    PokemonEntity saved = pokemonRepository.save(created);
+
+                    pokemonService.uploadGif(saved.getDexId(), shinyImg);
+                    return saved;
                 });
 
         HuntEntity hunt = new HuntEntity();

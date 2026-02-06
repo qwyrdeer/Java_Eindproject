@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "hunts")
 public class HuntEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String usedGame;
     private String huntMethod;
