@@ -5,9 +5,11 @@ import nl.novi.GalacticEndgame.dtos.hunt.HuntRequestDTO;
 import nl.novi.GalacticEndgame.dtos.hunt.HuntResponseDTO;
 import nl.novi.GalacticEndgame.entities.HuntEntity;
 import nl.novi.GalacticEndgame.entities.PokemonEntity;
+import nl.novi.GalacticEndgame.entities.UserEntity;
 import nl.novi.GalacticEndgame.enums.HuntStatus;
 import nl.novi.GalacticEndgame.exeptions.HuntNotFoundException;
 import nl.novi.GalacticEndgame.exeptions.IncorrectInputException;
+import nl.novi.GalacticEndgame.exeptions.UserNotFoundException;
 import nl.novi.GalacticEndgame.mappers.HuntMapper;
 import nl.novi.GalacticEndgame.repositories.HuntRepository;
 import nl.novi.GalacticEndgame.repositories.PokemonRepository;
@@ -50,7 +52,7 @@ public class HuntService {
         if (userId == null) {
             throw new IncorrectInputException("userId cannot be null");
         }
-        List<HuntEntity> hunts = huntRepository.findByUser_UserId(userId);
+        List<HuntEntity> hunts = huntRepository.findByUserEntity_UserId(userId);
         if (hunts.isEmpty()) {
             throw new HuntNotFoundException("No hunts found for userId " + userId);
         }
@@ -62,7 +64,7 @@ public class HuntService {
         if (username == null){
             throw new IncorrectInputException("Username cannot be null");
         }
-        List<HuntEntity> hunts = huntRepository.findByUser_UsernameIgnoreCase(username);
+        List<HuntEntity> hunts = huntRepository.findByUserEntity_UsernameIgnoreCase(username);
         return huntMapper.mapToDto(hunts);
     }
 
@@ -83,7 +85,7 @@ public class HuntService {
         if (userId == null){
             throw new IncorrectInputException("UserId cannot be null");
         }
-        List<HuntEntity> hunts = huntRepository.findByUser_UserIdAndHuntStatus(userId, status);
+        List<HuntEntity> hunts = huntRepository.findByUserEntity_UserIdAndHuntStatus(userId, status);
         return huntMapper.mapToDto(hunts);
     }
 
@@ -92,7 +94,7 @@ public class HuntService {
         if (name == null){
             throw new IncorrectInputException("Name of Pokemon cannot be null");
         }
-        List<HuntEntity> hunts = huntRepository.findByPokemonIgnoreCase(name);
+        List<HuntEntity> hunts = huntRepository.findByPokemon_NameIgnoreCase(name);
         return huntMapper.mapToDto(hunts);
     }
 
@@ -105,19 +107,17 @@ public class HuntService {
     }
 
     @Transactional
-    public HuntResponseDTO createHunt(HuntRequestDTO huntRequestDTO) {
+    public HuntResponseDTO createHunt(HuntRequestDTO input) {
+        UserEntity user = userRepository.findById(input.getUserId())
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found")
+                );
 
-        // werkt zo niet, misschien met authenticatie later?
-//        UserEntity user = userRepository.findById(huntRequestDTO.getUserId());
-//        if (user.isEmpty()) {
-//            throw new UserNotFoundException("User not found");
-//        }
-
-        PokemonEntity pokemon = pokemonRepository.findByDexId(huntRequestDTO.getPokemonDexId())
+        PokemonEntity pokemon = pokemonRepository.findByDexId(input.getPokemonDexId())
                 .map(existing -> {
-                    if (!existing.getName().equalsIgnoreCase(huntRequestDTO.getPokemonName())) {
-                        throw new IncorrectInputException( "DexId " + huntRequestDTO.getPokemonDexId() + " already exists with name '" +
-                                existing.getName() + "', not '" + huntRequestDTO.getPokemonName() + "'" );
+                    if (!existing.getName().equalsIgnoreCase(input.getPokemonName())) {
+                        throw new IncorrectInputException( "DexId " + input.getPokemonDexId() + " already exists with name '" +
+                                existing.getName() + "', not '" + input.getPokemonName() + "'" );
                     }
                     existing.setHuntCount(existing.getHuntCount() + 1);
                     if (existing.getDateFirstHunted() == null) {
@@ -127,8 +127,8 @@ public class HuntService {
                 })
                 .orElseGet(() -> {
                     PokemonEntity created = new PokemonEntity();
-                    created.setDexId(huntRequestDTO.getPokemonDexId());
-                    created.setName(huntRequestDTO.getPokemonName());
+                    created.setDexId(input.getPokemonDexId());
+                    created.setName(input.getPokemonName());
 
                     created.setHuntCount(1L);
                     created.setDateFirstHunted(LocalDateTime.now());
@@ -137,13 +137,16 @@ public class HuntService {
                 });
 
         HuntEntity hunt = new HuntEntity();
-        hunt.setUser(hunt.getUserEntity());
+        hunt.setUserEntity(user);
         hunt.setPokemon(pokemon);
 
-        hunt.setUsedGame(huntRequestDTO.getUsedGame());
-        hunt.setHuntMethod(huntRequestDTO.getHuntMethod());
-        hunt.setEncounters(huntRequestDTO.getEncounters());
-//        hunt.setHuntStatus(huntRequestDTO.setHuntStatus());
+        hunt.setUsedGame(input.getUsedGame());
+        hunt.setHuntMethod(input.getHuntMethod());
+        hunt.setEncounters(input.getEncounters());
+        hunt.setHuntStatus(input.getHuntStatus());
+
+        hunt.setCreateDate(LocalDateTime.now());
+        hunt.setEditDate(LocalDateTime.now());
 
         HuntEntity saved = huntRepository.save(hunt);
         return huntMapper.mapToDto(saved);

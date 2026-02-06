@@ -9,10 +9,10 @@ import java.util.List;
 public interface HuntRepository extends JpaRepository<HuntEntity, Long> {
 
     List<HuntEntity> findByHuntStatus(HuntStatus status);
-    List<HuntEntity> findByUser_UserIdAndHuntStatus(Long userId, HuntStatus status);
-    List<HuntEntity> findByUser_UserId(Long userId);
-    List<HuntEntity> findByUser_UsernameIgnoreCase(String username);
-    List<HuntEntity> findByPokemonIgnoreCase(String name);
+    List<HuntEntity> findByUserEntity_UserIdAndHuntStatus(Long userId, HuntStatus status);
+    List<HuntEntity> findByUserEntity_UserId(Long userId);
+    List<HuntEntity> findByUserEntity_UsernameIgnoreCase(String username);
+    List<HuntEntity> findByPokemon_NameIgnoreCase(String name);
 
     // is voorgesteld, maar nog ff checken \/
     @Override

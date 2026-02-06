@@ -1,10 +1,8 @@
 package nl.novi.GalacticEndgame.controllers;
 
 import jakarta.validation.Valid;
-import nl.novi.GalacticEndgame.dtos.user.UserExtendedDTO;
 import nl.novi.GalacticEndgame.dtos.user.UserRequestDTO;
 import nl.novi.GalacticEndgame.dtos.user.UserResponseDTO;
-import nl.novi.GalacticEndgame.entities.UserEntity;
 import nl.novi.GalacticEndgame.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

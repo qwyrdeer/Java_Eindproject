@@ -1,16 +1,20 @@
 package nl.novi.GalacticEndgame.dtos.user;
 
-import nl.novi.GalacticEndgame.dtos.profile.ProfileExtendedDTO;
-import nl.novi.GalacticEndgame.entities.ImageEntity;
+import nl.novi.GalacticEndgame.dtos.hunt.HuntResponseDTO;
+import nl.novi.GalacticEndgame.dtos.profile.ProfileResponseDTO;
 import nl.novi.GalacticEndgame.enums.UserRole;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class UserResponseDTO {
     private Long userId;
     private String username;
     private UserRole userRole;
-    private ImageEntity userAvatar;
-
-    private ProfileExtendedDTO profile;
+    private String userAvatarUrl;
+    private LocalDateTime createdAt;
+    private ProfileResponseDTO profile;
+    private List<HuntResponseDTO> hunts;
 
     // -- getter en setter
 
@@ -38,19 +42,35 @@ public class UserResponseDTO {
         this.userRole = userRole;
     }
 
-    public ImageEntity getUserAvatar() {
-        return userAvatar;
+    public String getUserAvatarUrl() {
+        return userAvatarUrl;
     }
 
-    public void setUserAvatar(ImageEntity userAvatar) {
-        this.userAvatar = userAvatar;
+    public void setUserAvatarUrl(String userAvatarUrl) {
+        this.userAvatarUrl = userAvatarUrl;
     }
 
-    public ProfileExtendedDTO getProfile() {
+    public ProfileResponseDTO getProfile() {
         return profile;
     }
 
-    public void setProfile(ProfileExtendedDTO profile) {
+    public void setProfile(ProfileResponseDTO profile) {
         this.profile = profile;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public List<HuntResponseDTO> getHunts() {
+        return hunts;
+    }
+
+    public void setHunts(List<HuntResponseDTO> hunts) {
+        this.hunts = hunts;
     }
 }

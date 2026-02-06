@@ -2,9 +2,12 @@ package nl.novi.GalacticEndgame.services;
 
 import nl.novi.GalacticEndgame.entities.ImageEntity;
 import nl.novi.GalacticEndgame.enums.ImageType;
+import nl.novi.GalacticEndgame.exeptions.ImageNotFoundException;
 import nl.novi.GalacticEndgame.exeptions.StoringException;
 import nl.novi.GalacticEndgame.repositories.ImageRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,8 +41,7 @@ public class ImageService {
 
         Path target = fileStoragePath.resolve(subfolder).resolve(stored).normalize();
 
-        try {
-            Files.createDirectories(target.getParent());
+        try {Files.createDirectories(target.getParent());
             file.transferTo(target.toFile());
         } catch (IOException e) {
             throw new StoringException("Could not store file", e);
@@ -49,6 +51,7 @@ public class ImageService {
         image.setOriginalName(original);
         image.setStoredName(stored);
         image.setContentType(file.getContentType());
+        image.setUrl(subfolder + "/" + stored);
         image.setSize(file.getSize());
         image.setImageType(type);
         image.setPath(subfolder + "/" + stored);
@@ -74,5 +77,20 @@ public class ImageService {
             case "image/webp" -> ".webp";
             default -> "";
         };
+    }
+
+    public Resource loadAsResource(String filename) {
+        try {
+            Path file = fileStoragePath.resolve(filename).normalize();
+            Resource resource = new UrlResource(file.toUri());
+
+            if (!resource.exists()) {
+                throw new ImageNotFoundException("Image not found: " + filename);
+            }
+            return resource;
+
+        } catch (Exception e) {
+            throw new RuntimeException("File not found " + filename);
+        }
     }
 }

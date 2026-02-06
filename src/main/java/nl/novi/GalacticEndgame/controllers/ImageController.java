@@ -28,36 +28,45 @@ public class ImageController {
     }
 
     @GetMapping("/{userId}/avatar")
-    public ResponseEntity<Resource>  getAvatar(@PathVariable ("user_id") Long userId, HttpServletRequest request) {
-        Resource resource = (Resource) userService.getUserAvatar(userId);
+    public ResponseEntity<Resource> getAvatar(@PathVariable Long userId, HttpServletRequest request) {
+        Resource resource = userService.loadUserAvatar(userId);
         String mimeType;
-        try{
-            mimeType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+
+        try {
+            mimeType = request
+                    .getServletContext()
+                    .getMimeType(resource.getFile().getAbsolutePath());
         } catch (IOException e) {
             mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
         }
 
-        return ResponseEntity
-                .ok()
+        return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(mimeType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline;fileName=" + resource.getFilename())
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + resource.getFilename() + "\""
+                )
                 .body(resource);
     }
 
-    @GetMapping("/{id}/pkmn-gif")
+    @GetMapping("/{dexId}/pkmn-gif")
     public ResponseEntity<Resource>  getShinyImg(@PathVariable Long dexId, HttpServletRequest request) {
-        Resource resource = (Resource) pokemonService.getShinyImg(dexId);
+        Resource resource = (Resource) pokemonService.loadShinyImg(dexId);
         String mimeType;
-        try{
-            mimeType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        try {
+            mimeType = request
+                    .getServletContext()
+                    .getMimeType(resource.getFile().getAbsolutePath());
         } catch (IOException e) {
             mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
         }
 
-        return ResponseEntity
-                .ok()
+        return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(mimeType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline;fileName=" + resource.getFilename())
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + resource.getFilename() + "\""
+                )
                 .body(resource);
     }
 

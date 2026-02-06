@@ -25,6 +25,7 @@ public class ImageEntity {
     @Enumerated(EnumType.STRING)
     private ImageType imageType;
 
+    private String url;
     private Long size;
 
     private String path;
@@ -94,4 +95,12 @@ public class ImageEntity {
     public String getPath() {return path;}
 
     public void setPath(String path) {this.path = path;}
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

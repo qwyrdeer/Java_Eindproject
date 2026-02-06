@@ -1,69 +1,16 @@
 package nl.novi.GalacticEndgame.dtos.user;
 
-import nl.novi.GalacticEndgame.dtos.profile.ProfileExtendedDTO;
-import nl.novi.GalacticEndgame.entities.ImageEntity;
-import nl.novi.GalacticEndgame.enums.UserRole;
-
 import java.time.LocalDateTime;
 
-public class UserExtendedDTO {
-
-    private Long userId;
-    private String username;
-
-    private ImageEntity userAvatar;
-    private UserRole userRole;
-
-    private LocalDateTime createdAt;
+public class UserExtendedDTO extends UserResponseDTO {
     private LocalDateTime lastLogin;
 
     private boolean blocked;
     private LocalDateTime blockedUntil;
     private String blockReason;
 
-    private ProfileExtendedDTO profile;
-
 // -- getter en setter
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public ImageEntity getUserAvatar() {
-        return userAvatar;
-    }
-
-    public void setUserAvatar(ImageEntity userAvatar) {
-        this.userAvatar = userAvatar;
-    }
-
-    public UserRole getUserRole() {
-        return userRole;
-    }
-
-    public void setUserRole(UserRole userRole) {
-        this.userRole = userRole;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 
     public LocalDateTime getLastLogin() {
         return lastLogin;
@@ -97,11 +44,4 @@ public class UserExtendedDTO {
         this.blockReason = blockReason;
     }
 
-    public ProfileExtendedDTO getProfile() {
-        return profile;
-    }
-
-    public void setProfile(ProfileExtendedDTO profile) {
-        this.profile = profile;
-    }
 }

@@ -1,5 +1,6 @@
 package nl.novi.GalacticEndgame.mappers;
 
+import nl.novi.GalacticEndgame.dtos.hunt.HuntResponseDTO;
 import nl.novi.GalacticEndgame.dtos.user.UserRequestDTO;
 import nl.novi.GalacticEndgame.dtos.user.UserResponseDTO;
 import nl.novi.GalacticEndgame.entities.UserEntity;
@@ -13,14 +14,31 @@ import java.util.List;
 @Component
 public class UserMapper implements DTOMapper<UserResponseDTO, UserRequestDTO, UserEntity> {
 
-    @Override
-    public UserResponseDTO mapToDto(UserEntity model) {
-        UserResponseDTO dto = new UserResponseDTO();
-        dto.setUserId(model.getUserId());
-        dto.setUsername(model.getUsername());
-        dto.setUserAvatar(model.getUserAvatar());
-        dto.setUserRole(model.getUserRole());
-        return dto;
+    private final ProfileMapper profileMapper;
+    private final HuntMapper huntMapper;
+
+    public UserMapper(ProfileMapper profileMapper, HuntMapper huntMapper) {
+        this.profileMapper = profileMapper;
+        this.huntMapper = huntMapper;
+    }
+
+    public UserResponseDTO mapToDto(UserEntity model) {return mapToDto(model, new UserResponseDTO());}
+
+    public <D extends UserResponseDTO> D mapToDto(UserEntity model, D target) {
+        target.setUserId(model.getUserId());
+        target.setUsername(model.getUsername());
+        target.setUserAvatarUrl("/uploads/avatars/" + target.getUserId());
+        target.setUserRole(model.getUserRole());
+        target.setCreatedAt(model.getCreatedAt());
+        target.setHunts(huntMapper.mapToDto(model.getHunts()));
+
+        if (model.getProfile() != null) {
+            target.setProfile(
+                    profileMapper.mapToDto(model.getProfile())
+            );
+        }
+
+        return target;
     }
 
     @Override

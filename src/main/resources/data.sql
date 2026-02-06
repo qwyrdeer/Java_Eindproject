@@ -1,6 +1,7 @@
 INSERT INTO images (id, original_name, stored_name, content_type, size, path, image_type, created_at)
 VALUES
 (1, 'AVATAR.PNG', 'avatar1.png', 'image/png', 1000, 'avatars/avatar1.png', 'AVATAR', NOW()),
+
 (2, 'TOGEPI.GIF', 'togepi.gif', 'image/gif', 2000, 'pkmn/togepi.gif', 'PKMN_GIF', NOW());
 
 INSERT INTO users (user_id, username, avatar_image, user_role, create_date, last_login, blocked, blocked_until, block_reason)

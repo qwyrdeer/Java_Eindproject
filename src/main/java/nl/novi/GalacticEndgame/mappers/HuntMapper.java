@@ -26,6 +26,7 @@ public class HuntMapper implements DTOMapper<HuntResponseDTO, HuntRequestDTO, Hu
         dto.setHuntMethod(model.getHuntMethod());
         dto.setEncounters(model.getEncounters());
         dto.setHuntStatus(model.getHuntStatus());
+        dto.setUserId(model.getUserEntity().getUserId());
 
         dto.setCreateDate(model.getCreateDate());
         dto.setFinishDate(model.getFinishDate());

@@ -2,6 +2,7 @@ package nl.novi.GalacticEndgame.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import nl.novi.GalacticEndgame.dtos.profile.ProfileResponseDTO;
 import nl.novi.GalacticEndgame.enums.BlockDuration;
 import nl.novi.GalacticEndgame.enums.UserRole;
 
@@ -121,15 +122,12 @@ public class UserEntity {
         this.userRole = userRole;
     }
 
-    public ProfileEntity getProfileEntity() {
+    public ProfileEntity getProfile() {
         return profileEntity;
     }
 
-    public void setProfileEntity(ProfileEntity profileEntity) {
+    public void setProfile(ProfileEntity profileEntity) {
         this.profileEntity = profileEntity;
-        if (profileEntity != null) {
-            profileEntity.setUser(this);
-        }
     }
 
     public ImageEntity getUserAvatar() {

@@ -7,9 +7,11 @@ import nl.novi.GalacticEndgame.entities.ImageEntity;
 import nl.novi.GalacticEndgame.entities.ProfileEntity;
 import nl.novi.GalacticEndgame.entities.UserEntity;
 import nl.novi.GalacticEndgame.enums.ImageType;
+import nl.novi.GalacticEndgame.exeptions.ImageNotFoundException;
 import nl.novi.GalacticEndgame.exeptions.UserNotFoundException;
 import nl.novi.GalacticEndgame.mappers.UserMapper;
 import nl.novi.GalacticEndgame.repositories.UserRepository;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,16 +56,16 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO createUser(UserRequestDTO input) {
-
         // hele proces in keycloak - hoe doe ik dat met aanmaken profiel
-
         UserEntity user = userMapper.mapToEntity(input);
 
         ProfileEntity profile = new ProfileEntity();
         profile.setUser(user);
-        user.setProfileEntity(profile);
 
-        return null;
+        user.setProfile(profile);
+        UserEntity saved = userRepository.save(user);
+
+        return userMapper.mapToDto(saved);
     }
 
     @Transactional
@@ -81,18 +83,28 @@ public class UserService {
         return userMapper.mapToDto(saved);
     }
 
-
     public void deleteUser(Long dexId) {
     }
 
     @Transactional
-    public ImageEntity getUserAvatar(Long userId) {
-        Optional<UserEntity> optionalUser = userRepository.findById(userId);
-        if(optionalUser.isEmpty()){
-            throw new UserNotFoundException("User " + userId + " not found.");
-        }
-        return optionalUser.get().getUserAvatar();
+    public Resource loadUserAvatar(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User " + userId + " not found.")
+                );
+        ImageEntity avatar = user.getUserAvatar();
+
+        return imageService.loadAsResource(avatar.getUrl());
     }
+
+//    @Transactional
+//    public ImageEntity getUserAvatar(Long userId) {
+//        Optional<UserEntity> optionalUser = userRepository.findById(userId);
+//        if(optionalUser.isEmpty()){
+//            throw new UserNotFoundException("User " + userId + " not found.");
+//        }
+//        return optionalUser.get().getUserAvatar();
+//    }
 
     //admin?
 //    blockUser;
