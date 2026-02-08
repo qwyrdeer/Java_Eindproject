@@ -56,6 +56,8 @@ public class HuntController {
         return new ResponseEntity<>(hunt, HttpStatus.OK);
     }
 
+//    @ModelAttribute
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<HuntResponseDTO> createHunt(@RequestPart("data") @Valid HuntRequestDTO data, @RequestPart(value = "shinyImg", required = false) MultipartFile shinyImg) {
         HuntResponseDTO hunt = huntService.createHunt(data, shinyImg);

@@ -2,6 +2,7 @@ package nl.novi.GalacticEndgame.mappers;
 
 import nl.novi.GalacticEndgame.dtos.pokemon.PokemonRequestDTO;
 import nl.novi.GalacticEndgame.dtos.pokemon.PokemonResponseDTO;
+import nl.novi.GalacticEndgame.entities.ImageEntity;
 import nl.novi.GalacticEndgame.entities.PokemonEntity;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,7 @@ public class PokemonMapper implements DTOMapper<PokemonResponseDTO, PokemonReque
         dto.setName(model.getName());
         dto.setHuntCount(model.getHuntCount());
         dto.setDateFirstHunted(model.getDateFirstHunted());
-        dto.setShinyImg("/uploads/pkmn_gifs/" + model.getDexId() + ".gif");
+        dto.setShinyImg("/uploads/pkmn_gifs/" + model.getShinyImg().getStoredName());
 
         return dto;
     }

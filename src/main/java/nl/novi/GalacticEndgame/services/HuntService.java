@@ -114,47 +114,60 @@ public class HuntService {
         UserEntity user = userRepository.findById(input.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        PokemonEntity pokemon = pokemonRepository.findByDexId(input.getPokemonDexId())
-                .map(existing -> {
-                    if (!existing.getName().equalsIgnoreCase(input.getPokemonName())) {
-                        throw new IncorrectInputException( "DexId " + input.getPokemonDexId() + " already exists with name '" +
-                                existing.getName() + "', not '" + input.getPokemonName() + "'" );
-                    }
-                    existing.setHuntCount(existing.getHuntCount() + 1);
-                    if (existing.getDateFirstHunted() == null) {
-                        existing.setDateFirstHunted(LocalDateTime.now());
-                    }
-                    return existing;
-                })
-                .orElseGet(() -> {
-                    if (shinyImg == null || shinyImg.isEmpty()) {
-                        throw new IncorrectInputException("Adding a shiny GIF is required for new Pokémon");}
-                    PokemonEntity created = new PokemonEntity();
-                    created.setDexId(input.getPokemonDexId());
-                    created.setName(input.getPokemonName());
-                    created.setHuntCount(1L);
-                    created.setDateFirstHunted(LocalDateTime.now());
+        PokemonEntity pokemon = pokemonRepository.findByDexId(input.getDexId())
+                .map(existing -> updateExistingPokemon(existing, input))
+                .orElseGet(() -> createNewPokemon(input, shinyImg));
 
-                    PokemonEntity saved = pokemonRepository.save(created);
+        HuntEntity hunt = createHuntEntity(user, pokemon, input);
+        HuntEntity saved = huntRepository.save(hunt);
+        return huntMapper.mapToDto(saved);
+    }
 
-                    pokemonService.uploadGif(saved.getDexId(), shinyImg);
-                    return saved;
-                });
+    private PokemonEntity updateExistingPokemon(PokemonEntity pokemon, HuntRequestDTO input) {
+        if (!pokemon.getName().equalsIgnoreCase(input.getName())) {
+            throw new IncorrectInputException(
+                    "DexId " + input.getDexId() + " already exists with name '" +
+                            pokemon.getName() + "', not '" + input.getName() + "'"
+            );
+        }
+        pokemon.setHuntCount(pokemon.getHuntCount() + 1);
+        if (pokemon.getDateFirstHunted() == null) {
+            pokemon.setDateFirstHunted(LocalDateTime.now());
+        }
+        return pokemon;
+    }
 
+    private PokemonEntity createNewPokemon(HuntRequestDTO input, MultipartFile shinyImg) {
+        if (isFileEmpty(shinyImg)) {
+            throw new IncorrectInputException("Adding a shiny GIF is required for new Pokémon");
+        }
+
+        PokemonEntity pokemon = new PokemonEntity();
+        pokemon.setDexId(input.getDexId());
+        pokemon.setName(input.getName());
+        pokemon.setHuntCount(1L);
+        pokemon.setDateFirstHunted(LocalDateTime.now());
+
+        PokemonEntity saved = pokemonRepository.save(pokemon);
+        pokemonService.uploadGif(saved.getDexId(), shinyImg);
+        return saved;
+    }
+
+    private HuntEntity createHuntEntity(UserEntity user, PokemonEntity pokemon, HuntRequestDTO input) {
         HuntEntity hunt = new HuntEntity();
         hunt.setUserEntity(user);
         hunt.setPokemon(pokemon);
-
         hunt.setUsedGame(input.getUsedGame());
         hunt.setHuntMethod(input.getHuntMethod());
         hunt.setEncounters(input.getEncounters());
         hunt.setHuntStatus(input.getHuntStatus());
-
         hunt.setCreateDate(LocalDateTime.now());
         hunt.setEditDate(LocalDateTime.now());
+        return hunt;
+    }
 
-        HuntEntity saved = huntRepository.save(hunt);
-        return huntMapper.mapToDto(saved);
+    private boolean isFileEmpty(MultipartFile file) {
+        return file == null || file.isEmpty();
     }
 
     @Transactional
@@ -167,8 +180,13 @@ public class HuntService {
         existingHuntEntity.setUsedGame(huntInput.getUsedGame());
         existingHuntEntity.setHuntMethod(huntInput.getHuntMethod());
         existingHuntEntity.setEncounters(huntInput.getEncounters());
+        existingHuntEntity.changeStatus(huntInput.getHuntStatus(), huntInput.getFinishDate());
 
-    // Status - automatische afronding (data) wanneer omgezet naar FINISHED?]
+        if (huntInput.getHuntStatus() == HuntStatus.FINISHED && huntInput.getFinishDate() == null) {
+            throw new IllegalArgumentException(
+                    "Finish date is required when hunt status is FINISHED"
+            );
+        }
 
         huntRepository.save(existingHuntEntity);
         return huntMapper.mapToDto(existingHuntEntity);

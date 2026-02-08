@@ -70,16 +70,18 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO uploadAvatar(Long userId, MultipartFile file) {
-        Optional<UserEntity> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-            throw new UserNotFoundException("User " + userId + " not found");
-        }
-        UserEntity userEntity = optionalUser.get();
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found " + userId));
+        String oldUrl = (user.getUserAvatar() != null) ? user.getUserAvatar().getUrl() : null;
 
         ImageEntity avatar = imageService.storeImage(file, ImageType.AVATAR);
-        userEntity.setUserAvatar(avatar);
+        user.setUserAvatar(avatar);
+        UserEntity saved = userRepository.save(user);
 
-        UserEntity saved = userRepository.save(userEntity);
+        if (oldUrl != null) {
+            imageService.deleteByUrl(oldUrl);
+        }
+
         return userMapper.mapToDto(saved);
     }
 
@@ -89,22 +91,11 @@ public class UserService {
     @Transactional
     public Resource loadUserAvatar(Long userId) {
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new UserNotFoundException("User " + userId + " not found.")
-                );
+                .orElseThrow(() -> new UserNotFoundException("User " + userId + " not found."));
         ImageEntity avatar = user.getUserAvatar();
 
         return imageService.loadAsResource(avatar.getUrl());
     }
-
-//    @Transactional
-//    public ImageEntity getUserAvatar(Long userId) {
-//        Optional<UserEntity> optionalUser = userRepository.findById(userId);
-//        if(optionalUser.isEmpty()){
-//            throw new UserNotFoundException("User " + userId + " not found.");
-//        }
-//        return optionalUser.get().getUserAvatar();
-//    }
 
     //admin?
 //    blockUser;

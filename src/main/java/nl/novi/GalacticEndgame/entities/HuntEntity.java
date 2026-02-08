@@ -45,7 +45,6 @@ public class HuntEntity {
     @Column(name = "finished_hunt")
     private LocalDateTime finishedHunt;
 
-
     // toevoegen aan front-end!
 
     public void changeStatus(HuntStatus newStatus, LocalDate userInputFinishDate) {

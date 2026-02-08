@@ -6,6 +6,7 @@ import nl.novi.GalacticEndgame.dtos.pokemon.PokemonResponseDTO;
 import nl.novi.GalacticEndgame.entities.ImageEntity;
 import nl.novi.GalacticEndgame.entities.PokemonEntity;
 import nl.novi.GalacticEndgame.enums.ImageType;
+import nl.novi.GalacticEndgame.exeptions.IncorrectInputException;
 import nl.novi.GalacticEndgame.exeptions.PokemonNotFoundException;
 import nl.novi.GalacticEndgame.mappers.PokemonMapper;
 import nl.novi.GalacticEndgame.repositories.PokemonRepository;
@@ -73,25 +74,27 @@ public class PokemonService {
 
     @Transactional
     public PokemonResponseDTO uploadGif(Long dexId, MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IncorrectInputException("Shiny GIF is required");}
         Optional<PokemonEntity> optionalPokemon = pokemonRepository.findByDexId(dexId);
+
         if (optionalPokemon.isEmpty()) {
             throw new PokemonNotFoundException("Pokemon # " + dexId + " not found");
         }
-        PokemonEntity pokemonEntity = optionalPokemon.get();
 
+        PokemonEntity pokemon = optionalPokemon.get();
         ImageEntity shinyImg = imageService.storeImage(file, ImageType.PKMN_GIF);
-        pokemonEntity.setShinyImg(shinyImg);
 
-        PokemonEntity saved = pokemonRepository.save(pokemonEntity);
+        pokemon.setShinyImg(shinyImg);
+
+        PokemonEntity saved = pokemonRepository.save(pokemon);
         return pokemonMapper.mapToDto(saved);
     }
 
     @Transactional
     public Resource loadShinyImg(Long dexId) {
         PokemonEntity pokemon = pokemonRepository.findByDexId(dexId)
-                .orElseThrow(() ->
-                        new PokemonNotFoundException("Image of Pokemon # " + dexId + " not found.")
-                );
+                .orElseThrow(() -> new PokemonNotFoundException("Image of Pokemon # " + dexId + " not found."));
         ImageEntity shinyImg = pokemon.getShinyImg();
 
         return imageService.loadAsResource(shinyImg.getUrl());

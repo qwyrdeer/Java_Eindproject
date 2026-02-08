@@ -3,6 +3,7 @@ package nl.novi.GalacticEndgame.services;
 import nl.novi.GalacticEndgame.entities.ImageEntity;
 import nl.novi.GalacticEndgame.enums.ImageType;
 import nl.novi.GalacticEndgame.exeptions.ImageNotFoundException;
+import nl.novi.GalacticEndgame.exeptions.IncorrectInputException;
 import nl.novi.GalacticEndgame.exeptions.StoringException;
 import nl.novi.GalacticEndgame.repositories.ImageRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,26 +21,29 @@ import java.util.UUID;
 @Service
 public class ImageService {
 
-    @Value("${my.upload_location}")
-    private final Path fileStoragePath;
-    private final ImageRepository repo;
+    private final ImageRepository imageRepository;
+    private final Path uploadRoot;
 
-    public ImageService(@Value("${my.upload_location}") String fileStorageLocation, ImageRepository repo) throws IOException {
-        fileStoragePath = Paths.get(fileStorageLocation).toAbsolutePath().normalize();
-        this.repo = repo;
+    public ImageService(@Value("${my.upload_location}") String uploadLocation, ImageRepository imageRepository) {
+        System.out.println("UPLOAD PATH = " + uploadLocation);
 
-        Files.createDirectories(fileStoragePath);
+        this.uploadRoot = Paths.get(uploadLocation).toAbsolutePath().normalize();
+        this.imageRepository = imageRepository;
     }
 
     public ImageEntity storeImage(MultipartFile file, ImageType type) {
+
+        if (file == null || file.isEmpty()) {
+            throw new IncorrectInputException("No image file uploaded");
+        }
 
         String original = saveOriginalName(file.getOriginalFilename());
         String ext = extension(original, file.getContentType());
         String stored = UUID.randomUUID() + ext;
 
-        String subfolder = (type == ImageType.AVATAR) ? "AVATAR" : "PKMN_GIF";
+        String subfolder = (type == ImageType.AVATAR) ? "avatars" : "pkmn_gifs";
 
-        Path target = fileStoragePath.resolve(subfolder).resolve(stored).normalize();
+        Path target = uploadRoot.resolve(subfolder).resolve(stored).normalize();
 
         try {Files.createDirectories(target.getParent());
             file.transferTo(target.toFile());
@@ -54,9 +58,8 @@ public class ImageService {
         image.setUrl(subfolder + "/" + stored);
         image.setSize(file.getSize());
         image.setImageType(type);
-        image.setPath(subfolder + "/" + stored);
 
-        return repo.save(image);
+        return imageRepository.save(image);
     }
 
     private String saveOriginalName(String name) {
@@ -81,7 +84,7 @@ public class ImageService {
 
     public Resource loadAsResource(String filename) {
         try {
-            Path file = fileStoragePath.resolve(filename).normalize();
+            Path file = uploadRoot.resolve(filename).normalize();
             Resource resource = new UrlResource(file.toUri());
 
             if (!resource.exists()) {
@@ -91,6 +94,17 @@ public class ImageService {
 
         } catch (Exception e) {
             throw new RuntimeException("File not found " + filename);
+        }
+    }
+
+    public void deleteByUrl(String url) {
+        if (url == null || url.isBlank()) return;
+        String relative = url.startsWith("/") ? url.substring(1) : url;
+        Path path = Paths.get(relative).normalize();
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            throw new StoringException("Could not delete old file: " + url, e);
         }
     }
 }

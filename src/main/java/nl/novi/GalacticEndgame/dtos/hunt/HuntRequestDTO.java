@@ -25,8 +25,10 @@ public class HuntRequestDTO {
 
     private Long userId;
 
-    private Long pokemonDexId;
-    private String pokemonName;
+    @NotNull(message = "dexId is required")
+    @Positive
+    private Long dexId;
+    private String name;
     private String shinyImg;
 
     @AssertTrue(message = "Encounters must be 1 or more than 1 when huntStatus is set to finished")
@@ -69,7 +71,7 @@ public class HuntRequestDTO {
         return huntStatus;
     }
 
-    public void setHuntStatus() {
+    public void setHuntStatus(HuntStatus huntStatus) {
         this.huntStatus = huntStatus;
     }
 
@@ -89,20 +91,20 @@ public class HuntRequestDTO {
         this.userId = userId;
     }
 
-    public Long getPokemonDexId() {
-        return pokemonDexId;
+    public Long getDexId() {
+        return dexId;
     }
 
-    public void setPokemonDexId(Long pokemonDexId) {
-        this.pokemonDexId = pokemonDexId;
+    public void setDexId(Long dexId) {
+        this.dexId = dexId;
     }
 
-    public String getPokemonName() {
-        return pokemonName;
+    public String getName() {
+        return name;
     }
 
-    public void setPokemonName(String pokemonName) {
-        this.pokemonName = pokemonName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getShinyImg() {

@@ -1,7 +1,6 @@
 package nl.novi.GalacticEndgame.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
-import nl.novi.GalacticEndgame.services.ImageService;
 import nl.novi.GalacticEndgame.services.PokemonService;
 import nl.novi.GalacticEndgame.services.UserService;
 import org.springframework.core.io.Resource;
@@ -27,7 +26,7 @@ public class ImageController {
         this.pokemonService = pokemonService;
     }
 
-    @GetMapping("/{userId}/avatar")
+    @GetMapping("/avatar/{userId}")
     public ResponseEntity<Resource> getAvatar(@PathVariable Long userId, HttpServletRequest request) {
         Resource resource = userService.loadUserAvatar(userId);
         String mimeType;
@@ -49,7 +48,7 @@ public class ImageController {
                 .body(resource);
     }
 
-    @GetMapping("/{dexId}/pkmn-gif")
+    @GetMapping("/pkmn-gif/{dexId}")
     public ResponseEntity<Resource>  getShinyImg(@PathVariable Long dexId, HttpServletRequest request) {
         Resource resource = (Resource) pokemonService.loadShinyImg(dexId);
         String mimeType;
