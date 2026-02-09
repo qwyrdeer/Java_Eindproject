@@ -31,7 +31,6 @@ class ProfileServiceTest {
 
     @Test
     void updateProfileByUserIdWithNewData() {
-        // Arrange
         Long userId = 1L;
 
         ProfileEntity existing = new ProfileEntity();
@@ -52,11 +51,9 @@ class ProfileServiceTest {
         ProfileResponseDTO expected = new ProfileResponseDTO();
         when(profileMapper.mapToDto(existing)).thenReturn(expected);
 
-        //Act
         ProfileResponseDTO result = profileService.updateProfileByUserId(userId, input);
         assertSame(expected, result);
 
-        //Assert
         assertEquals("New text", existing.getProfileText());
         assertNull(existing.getDiscordUrl());
         assertEquals("https://www.twitch.tv/ludwig", existing.getTwitchUrl());
@@ -69,13 +66,11 @@ class ProfileServiceTest {
 
     @Test
     void updateProfileByUserIdWhenProfileNotFoundThrow() {
-        // Arrange
         Long userId = 1L;
         ProfileRequestDTO input = new ProfileRequestDTO();
 
         when(profileRepository.findByUser_UserId(userId)).thenReturn(Optional.empty());
 
-        //Act & Assert
         assertThrows(ProfileNotFoundException.class, () -> profileService.updateProfileByUserId(userId, input));
 
         verify(profileRepository).findByUser_UserId(userId);
@@ -84,14 +79,57 @@ class ProfileServiceTest {
     }
 
     @Test
-    void findProfileByUser_UserId() {
+    void findProfileByUserIdThrowsWhenProfileNotFound() {
+        Long userId = 1L;
+        when(profileRepository.findByUser_UserId(userId)).thenReturn(Optional.empty());
+        assertThrows(ProfileNotFoundException.class, () -> profileService.findProfileByUser_UserId(userId));
+        verify(profileRepository).findByUser_UserId(userId);
+        verify(profileMapper, never()).mapToDto((ProfileEntity) any());
     }
 
     @Test
-    void findProfileByUser_UsernameIgnoreCase() {
+    void findProfileByUserIdReturnsProfileWhenFound() {
+        Long userId = 1L;
+        ProfileEntity profileEntity = new ProfileEntity();
+        ProfileResponseDTO expectedDto = new ProfileResponseDTO();
+
+        when(profileRepository.findByUser_UserId(userId)).thenReturn(Optional.of(profileEntity));
+        when(profileMapper.mapToDto(profileEntity)).thenReturn(expectedDto);
+
+        ProfileResponseDTO result = profileService.findProfileByUser_UserId(userId);
+
+        assertSame(expectedDto, result);
+        verify(profileRepository).findByUser_UserId(userId);
+        verify(profileMapper).mapToDto(profileEntity);
     }
 
     @Test
-    void updateProfileByUserId() {
+    void findProfileByUsernameThrowsWhenProfileNotFound() {
+        String username = "missingUser";
+
+        when(profileRepository.findByUser_UsernameIgnoreCase(username)).thenReturn(Optional.empty());
+
+        assertThrows(ProfileNotFoundException.class, () -> profileService.findProfileByUser_UsernameIgnoreCase(username));
+
+        verify(profileRepository).findByUser_UsernameIgnoreCase(username);
+        verify(profileMapper, never()).mapToDto((ProfileEntity) any());
     }
+
+    @Test
+    void findProfileByUsernameReturnsProfileWhenFound() {
+        String username = "Misty";
+
+        ProfileEntity profileEntity = new ProfileEntity();
+        ProfileResponseDTO expectedDto = new ProfileResponseDTO();
+
+        when(profileRepository.findByUser_UsernameIgnoreCase(username)).thenReturn(Optional.of(profileEntity));
+        when(profileMapper.mapToDto(profileEntity)).thenReturn(expectedDto);
+
+        ProfileResponseDTO result = profileService.findProfileByUser_UsernameIgnoreCase(username);
+
+        assertSame(expectedDto, result);
+        verify(profileRepository).findByUser_UsernameIgnoreCase(username);
+        verify(profileMapper).mapToDto(profileEntity);
+    }
+
 }

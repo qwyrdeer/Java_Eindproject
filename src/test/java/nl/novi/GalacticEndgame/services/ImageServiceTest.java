@@ -30,14 +30,12 @@ class ImageServiceTest {
 
     @Test
     void uploadAvatarWithWrongTypeThrowsException() {
-        // Arrange
         MultipartFile file = mock(MultipartFile.class);
 
         when(file.isEmpty()).thenReturn(false);
         when(file.getContentType()).thenReturn("file/pdf");
         when(file.getOriginalFilename()).thenReturn("virus.pdf");
 
-        //Act en Assert
         assertThrows(IncorrectInputException.class, () -> imageService.storeImage(file, ImageType.AVATAR));
 
         verify(imageRepository, never()).save(any());

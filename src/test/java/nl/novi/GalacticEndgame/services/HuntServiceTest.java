@@ -2,6 +2,7 @@ package nl.novi.GalacticEndgame.services;
 
 import nl.novi.GalacticEndgame.dtos.hunt.HuntRequestDTO;
 import nl.novi.GalacticEndgame.dtos.hunt.HuntResponseDTO;
+import nl.novi.GalacticEndgame.dtos.pokemon.PokemonResponseDTO;
 import nl.novi.GalacticEndgame.entities.HuntEntity;
 import nl.novi.GalacticEndgame.entities.ImageEntity;
 import nl.novi.GalacticEndgame.entities.PokemonEntity;
@@ -18,7 +19,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,13 +40,14 @@ class HuntServiceTest {
     @Mock
     PokemonRepository pokemonRepository;
     @Mock
+    PokemonService pokemonService;
+    @Mock
     UserRepository userRepository;
     @InjectMocks
     HuntService huntService;
 
     @Test
     void updateHuntShouldUpdatePreviousCreatedHuntWithNewData() {
-        // Arrange
         Long id = 1L;
         UserEntity user = new UserEntity();
         user.setUserId(1L);
@@ -75,23 +79,39 @@ class HuntServiceTest {
         HuntResponseDTO expected = new HuntResponseDTO();
         when(huntMapper.mapToDto(existing)).thenReturn(expected);
 
-        //Act
         HuntResponseDTO result = huntService.updateHunt(id, input);
 
-        //Assert
         assertEquals(200, existing.getEncounters());
         assertEquals("new", existing.getUsedGame());
         assertEquals("new", existing.getHuntMethod());
         assertEquals(HuntStatus.CURRENT, existing.getHuntStatus());
         verify(huntRepository).save(existing);
         verify(huntMapper).mapToDto(existing);
+    }
 
+    @Test
+    void updateHuntThrowsWhenHuntDoesNotExist() {
+        Long id = 99L;
+
+        HuntRequestDTO input = new HuntRequestDTO();
+        input.setUsedGame("Scarlet");
+        input.setHuntMethod("Masuda");
+        input.setEncounters(100L);
+        input.setHuntStatus(HuntStatus.CURRENT);
+        input.setFinishDate(null);
+
+        when(huntRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(HuntNotFoundException.class, () -> huntService.updateHunt(id, input));
+
+        verify(huntRepository, never()).save(any());
+        verify(huntMapper, never()).mapToDto((HuntEntity) any());
     }
 
     @Test
     void updateHuntThrowsWhenNoInputForFinishDate() {
-        // Arrange
         Long id = 1L;
+
         UserEntity user = new UserEntity();
         user.setUserId(1L);
 
@@ -119,14 +139,12 @@ class HuntServiceTest {
 
         when(huntRepository.findById(id)).thenReturn(Optional.of(existing));
 
-        //Act & Assert
         assertThrows(IncorrectInputException.class, () -> huntService.updateHunt(id, input));
         verify(huntRepository, never()).save(any());
     }
 
     @Test
     void createHuntButPokemonIdAndNameAreNotAMatchWithPreviousInputSoThrowAndDoNotSaveHunt() {
-        // Arrange
         Long dexId = 175L;
         Long userId = 1L;
 
@@ -155,7 +173,6 @@ class HuntServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(pokemonRepository.findByDexId(dexId)).thenReturn(Optional.of(existing));
 
-        //Act & Assert
         assertThrows(IncorrectInputException.class, () -> huntService.createHunt(create, null));
 
         verify(huntRepository, never()).save(any(HuntEntity.class));
@@ -164,12 +181,32 @@ class HuntServiceTest {
     }
 
     @Test
-    void findHuntById() {
+    void findHuntByIdThrowsWhenIdIsNull() {
+        when(huntRepository.findById(null)).thenReturn(Optional.empty());
+        assertThrows(HuntNotFoundException.class, () -> huntService.findHuntById(null));
+        verify(huntRepository).findById(null);
+        verify(huntMapper, never()).mapToDto((HuntEntity) any());
+    }
+
+    @Test
+    void findHuntByIdReturnsDTOWhenHuntExists() {
+        Long id = 1L;
+        HuntEntity hunt = new HuntEntity();
+        hunt.setId(id);
+
+        HuntResponseDTO dto = new HuntResponseDTO();
+        when(huntRepository.findById(id)).thenReturn(Optional.of(hunt));
+        when(huntMapper.mapToDto(hunt)).thenReturn(dto);
+
+        HuntResponseDTO result = huntService.findHuntById(id);
+        assertSame(dto, result);
+
+        verify(huntRepository).findById(id);
+        verify(huntMapper).mapToDto(hunt);
     }
 
     @Test
     void findAllHuntsReturnsDTO() {
-        // assert
         HuntEntity huntOne = new HuntEntity();
         huntOne.setId(1L);
         HuntEntity huntTwo = new HuntEntity();
@@ -183,10 +220,8 @@ class HuntServiceTest {
         when(huntRepository.findAll()).thenReturn(hunts);
         when(huntMapper.mapToDto(hunts)).thenReturn(dtos);
 
-        // Act
         List<HuntResponseDTO> result = huntService.findAllHunts();
 
-        // assert
         assertEquals(dtos.size(), result.size());
         assertSame(dtos, result);
 
@@ -196,27 +231,280 @@ class HuntServiceTest {
     }
 
     @Test
-    void findHuntsByUser_UserId() {
+    void findHuntsByUserReturnsDTOSWhenHuntsExist() {
+        Long userId = 1L;
+        HuntEntity hunt1 = new HuntEntity();
+        HuntEntity hunt2 = new HuntEntity();
+        List<HuntEntity> hunts = List.of(hunt1, hunt2);
+
+        HuntResponseDTO dto1 = new HuntResponseDTO();
+        HuntResponseDTO dto2 = new HuntResponseDTO();
+        List<HuntResponseDTO> dtos = List.of(dto1, dto2);
+
+        when(huntRepository.findByUserEntity_UserId(userId)).thenReturn(hunts);
+        when(huntMapper.mapToDto(hunts)).thenReturn(dtos);
+
+        List<HuntResponseDTO> result = huntService.findHuntsByUser_UserId(userId);
+
+        assertSame(dtos, result);
+        assertEquals(2, result.size());
+
+        verify(huntRepository).findByUserEntity_UserId(userId);
+        verify(huntMapper).mapToDto(hunts);
     }
 
     @Test
-    void findHuntsByUser_UsernameIgnoreCase() {
+    void findHuntsByUserThrowsWhenUserIdIsNull() {
+        assertThrows(IncorrectInputException.class, () -> huntService.findHuntsByUser_UserId(null));
+        verify(huntRepository, never()).findByUserEntity_UserId(any());
+        verify(huntMapper, never()).mapToDto((HuntEntity) any());
     }
 
     @Test
-    void findHuntsByStatus() {
+    void findHuntsByUsernameReturnsListWhenUsernameExists() {
+        String username = "Misty";
+        HuntEntity hunt1 = new HuntEntity();
+        HuntEntity hunt2 = new HuntEntity();
+        List<HuntEntity> hunts = List.of(hunt1, hunt2);
+
+        HuntResponseDTO dto1 = new HuntResponseDTO();
+        HuntResponseDTO dto2 = new HuntResponseDTO();
+        List<HuntResponseDTO> dtos = List.of(dto1, dto2);
+
+        when(huntRepository.findByUserEntity_UsernameIgnoreCase(username)).thenReturn(hunts);
+        when(huntMapper.mapToDto(hunts)).thenReturn(dtos);
+
+        List<HuntResponseDTO> result = huntService.findHuntsByUser_UsernameIgnoreCase(username);
+
+        assertSame(dtos, result);
+        assertEquals(2, result.size());
+
+        verify(huntRepository).findByUserEntity_UsernameIgnoreCase(username);
+        verify(huntMapper).mapToDto(hunts);
     }
 
     @Test
-    void findHuntsByUserAndStatus() {
+    void findHuntsByUserThrowsWhenNoHuntsFound() {
+        Long userId = 1L;
+        when(huntRepository.findByUserEntity_UserId(userId)).thenReturn(List.of());
+        assertThrows(HuntNotFoundException.class, () -> huntService.findHuntsByUser_UserId(userId));
+        verify(huntRepository).findByUserEntity_UserId(userId);
+        verify(huntMapper, never()).mapToDto((HuntEntity) any());
     }
 
     @Test
-    void findHuntsOfPokemonByName() {
+    void findHuntsByUsernameButDidNotSpecifyUsername() {
+        assertThrows(IncorrectInputException.class, () -> huntService.findHuntsByUser_UsernameIgnoreCase(null));
+        verify(huntRepository, never()).findByUserEntity_UsernameIgnoreCase(any());
+        verify(huntMapper, never()).mapToDto((HuntEntity) any());
     }
 
     @Test
-    void createHunt() {
+    void findHuntsByStatusThrowsWhenStatusIsNull() {
+        assertThrows(IncorrectInputException.class, () -> huntService.findHuntsByStatus(null));
+        verify(huntRepository, never()).findByHuntStatus(any());
+        verify(huntMapper, never()).mapToDto((HuntEntity) any());
+    }
+
+    @Test
+    void findHuntsByStatusReturnsListWhenStatusHasHunts() {
+        HuntStatus status = HuntStatus.CURRENT;
+        HuntEntity hunt1 = new HuntEntity();
+        HuntEntity hunt2 = new HuntEntity();
+        List<HuntEntity> hunts = List.of(hunt1, hunt2);
+
+        HuntResponseDTO dto1 = new HuntResponseDTO();
+        HuntResponseDTO dto2 = new HuntResponseDTO();
+        List<HuntResponseDTO> dtos = List.of(dto1, dto2);
+
+        when(huntRepository.findByHuntStatus(status)).thenReturn(hunts);
+        when(huntMapper.mapToDto(hunts)).thenReturn(dtos);
+
+        List<HuntResponseDTO> result = huntService.findHuntsByStatus(status);
+
+        assertSame(dtos, result);
+        assertEquals(2, result.size());
+
+        verify(huntRepository).findByHuntStatus(status);
+        verify(huntMapper).mapToDto(hunts);
+    }
+
+    @Test
+    void findHuntsByUserAndStatusThrowsWhenStatusIsNull() {
+        assertThrows(IncorrectInputException.class, () -> huntService.findHuntsByUserAndStatus(1L, null));
+        verify(huntRepository, never()).findByUserEntity_UserIdAndHuntStatus(any(), any());
+        verify(huntMapper, never()).mapToDto((HuntEntity) any());
+    }
+
+    @Test
+    void findHuntsByUserAndStatusThrowsWhenUserIdIsNull() {
+        assertThrows(IncorrectInputException.class, () -> huntService.findHuntsByUserAndStatus(null, HuntStatus.CURRENT));
+        verify(huntRepository, never()).findByUserEntity_UserIdAndHuntStatus(any(), any());
+        verify(huntMapper, never()).mapToDto((HuntEntity) any());
+    }
+
+    @Test
+    void findHuntsByUserAndStatusReturnsMappedList() {
+        Long userId = 1L;
+        HuntStatus status = HuntStatus.CURRENT;
+
+        List<HuntEntity> hunts = List.of(new HuntEntity(), new HuntEntity());
+        List<HuntResponseDTO> dtos = List.of(new HuntResponseDTO(), new HuntResponseDTO());
+
+        when(huntRepository.findByUserEntity_UserIdAndHuntStatus(userId, status)).thenReturn(hunts);
+        when(huntMapper.mapToDto(hunts)).thenReturn(dtos);
+
+        List<HuntResponseDTO> result = huntService.findHuntsByUserAndStatus(userId, status);
+
+        assertSame(dtos, result);
+        assertEquals(2, result.size());
+
+        verify(huntRepository).findByUserEntity_UserIdAndHuntStatus(userId, status);
+        verify(huntMapper).mapToDto(hunts);
+    }
+
+    @Test
+    void findHuntsOfPokemonByNameThrowsWhenNameIsNull() {
+        assertThrows(IncorrectInputException.class, () -> huntService.findHuntsOfPokemonByName(null));
+        verify(huntRepository, never()).findByPokemon_NameIgnoreCase(any());
+        verify(huntMapper, never()).mapToDto((HuntEntity) any());
+    }
+
+    @Test
+    void findHuntsOfPokemonByNameReturnsMappedList() {
+        String name = "Togepi";
+
+        List<HuntEntity> hunts = List.of(new HuntEntity(), new HuntEntity(), new HuntEntity());
+        List<HuntResponseDTO> dtos = List.of(new HuntResponseDTO(), new HuntResponseDTO(), new HuntResponseDTO());
+
+        when(huntRepository.findByPokemon_NameIgnoreCase(name)).thenReturn(hunts);
+        when(huntMapper.mapToDto(hunts)).thenReturn(dtos);
+
+        List<HuntResponseDTO> result = huntService.findHuntsOfPokemonByName(name);
+
+        assertSame(dtos, result);
+        assertEquals(3, result.size());
+
+        verify(huntRepository).findByPokemon_NameIgnoreCase(name);
+        verify(huntMapper).mapToDto(hunts);
+    }
+
+    @Test
+    void createHuntCreatesHuntWhenUserAndPokemonAreValid() {
+        Long userId = 1L;
+        Long dexId = 175L;
+
+        HuntRequestDTO input = new HuntRequestDTO();
+        input.setUserId(userId);
+        input.setDexId(dexId);
+        input.setName("Togepi");
+        input.setUsedGame("SV");
+        input.setHuntMethod("Masuda");
+        input.setEncounters(50L);
+        input.setHuntStatus(HuntStatus.CURRENT);
+
+        UserEntity user = new UserEntity();
+        user.setUserId(userId);
+
+        PokemonEntity existingPokemon = new PokemonEntity();
+        existingPokemon.setDexId(dexId);
+        existingPokemon.setName("Togepi");
+        existingPokemon.setHuntCount(3L);
+
+        HuntEntity huntSave = new HuntEntity();
+        HuntEntity savedHunt = new HuntEntity();
+
+        HuntResponseDTO responseDTO = new HuntResponseDTO();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(pokemonRepository.findByDexId(dexId)).thenReturn(Optional.of(existingPokemon));
+        when(huntRepository.save(any(HuntEntity.class))).thenReturn(savedHunt);
+        when(huntMapper.mapToDto(savedHunt)).thenReturn(responseDTO);
+
+        HuntResponseDTO result = huntService.createHunt(input, null);
+
+        assertSame(responseDTO, result);
+
+        verify(userRepository).findById(userId);
+        verify(pokemonRepository).findByDexId(dexId);
+        verify(huntRepository).save(any(HuntEntity.class));
+        verify(huntMapper).mapToDto(savedHunt);
+    }
+
+    @Test
+    void createHuntCreatesNewPokemonWhenPokemonDoesNotExist() {
+        Long userId = 1L;
+        Long dexId = 1050L;
+
+        HuntRequestDTO input = new HuntRequestDTO();
+        input.setUserId(userId);
+        input.setDexId(dexId);
+        input.setName("New");
+        input.setUsedGame("SV");
+        input.setHuntMethod("Random Encounters");
+        input.setEncounters(25L);
+        input.setHuntStatus(HuntStatus.CURRENT);
+
+        MultipartFile shinyImg = mock(MultipartFile.class);
+        PokemonResponseDTO pokemonResponseDTO = new PokemonResponseDTO();
+        when(pokemonService.uploadGif(anyLong(), any(MultipartFile.class))).thenReturn(pokemonResponseDTO);
+
+        UserEntity user = new UserEntity();
+        user.setUserId(userId);
+
+        PokemonEntity newPokemon = new PokemonEntity();
+        newPokemon.setDexId(dexId);
+        newPokemon.setName("New");
+
+        HuntEntity savedHunt = new HuntEntity();
+        HuntResponseDTO responseDTO = new HuntResponseDTO();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(pokemonRepository.findByDexId(dexId)).thenReturn(Optional.empty());
+        when(pokemonRepository.save(any(PokemonEntity.class))).thenReturn(newPokemon);
+        when(huntRepository.save(any(HuntEntity.class))).thenReturn(savedHunt);
+        when(huntMapper.mapToDto(savedHunt)).thenReturn(responseDTO);
+
+        HuntResponseDTO result = huntService.createHunt(input, shinyImg);
+
+        assertSame(responseDTO, result);
+
+        verify(userRepository).findById(userId);
+        verify(pokemonRepository).findByDexId(dexId);
+        verify(pokemonRepository).save(any(PokemonEntity.class));
+        verify(huntRepository).save(any(HuntEntity.class));
+        verify(huntMapper).mapToDto(savedHunt);
+    }
+
+    @Test
+    void createHuntThrowsWhenCreatingNewPokemonWithoutShinyImg() {
+        Long userId = 1L;
+        Long dexId = 1000L;
+
+        HuntRequestDTO input = new HuntRequestDTO();
+        input.setUserId(userId);
+        input.setDexId(dexId);
+        input.setName("New");
+        input.setUsedGame("SV");
+        input.setHuntMethod("Random");
+        input.setEncounters(10L);
+        input.setHuntStatus(HuntStatus.CURRENT);
+
+        MultipartFile shinyImg = mock(MultipartFile.class);
+        when(shinyImg.isEmpty()).thenReturn(true);
+
+        UserEntity user = new UserEntity();
+        user.setUserId(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(pokemonRepository.findByDexId(dexId)).thenReturn(Optional.empty());
+
+        assertThrows(IncorrectInputException.class, () -> huntService.createHunt(input, shinyImg));
+
+        verify(pokemonRepository, never()).save(any());
+        verify(pokemonService, never()).uploadGif(anyLong(), any());
+        verify(huntRepository, never()).save(any());
+        verify(huntMapper, never()).mapToDto((HuntEntity) any());
     }
 
     @Test
@@ -224,6 +512,24 @@ class HuntServiceTest {
         Long id = 17L;
         assertThrows(IncorrectInputException.class, () -> huntService.updateHunt(id, null));
         verify(huntRepository, never()).save(any(HuntEntity.class));
+    }
+
+    @Test
+    void updateExistingPokemonSetsFirstHuntedDateWhenNull() {
+        PokemonEntity pokemon = new PokemonEntity();
+        pokemon.setDexId(175L);
+        pokemon.setName("Togepi");
+        pokemon.setHuntCount(5L);
+        pokemon.setDateFirstHunted(null);
+
+        HuntRequestDTO input = new HuntRequestDTO();
+        input.setDexId(175L);
+        input.setName("Togepi");
+
+        PokemonEntity result = huntService.updateExistingPokemon(pokemon, input);
+
+        assertEquals(6L, result.getHuntCount());
+        assertNotNull(result.getDateFirstHunted());
     }
 
     @Test
@@ -241,21 +547,64 @@ class HuntServiceTest {
         dto.setFinishDate(null);
 
         when(huntRepository.findById(id)).thenReturn(Optional.of(hunt));
-
         assertThrows(IncorrectInputException.class, () -> huntService.updateHunt(id, dto));
-
         verify(huntRepository, never()).save(any());
     }
 
     @Test
-    void deleteHuntThatWasCreated() {
-        Long id = 1L;
-        HuntEntity hunt = new HuntEntity();
-        hunt.setId(id);
+    void updateExistingPokemonDoesNotOverwriteFirstHuntedDate() {
+        LocalDateTime originalDate = LocalDateTime.now().minusDays(5);
 
-        when(huntRepository.findById(id)).thenReturn(Optional.of(hunt));
-        huntService.deleteHunt(id);
-        verify(huntRepository).delete(hunt);
+        PokemonEntity pokemon = new PokemonEntity();
+        pokemon.setDexId(175L);
+        pokemon.setName("Togepi");
+        pokemon.setHuntCount(1L);
+        pokemon.setDateFirstHunted(originalDate);
+
+        HuntRequestDTO input = new HuntRequestDTO();
+        input.setDexId(175L);
+        input.setName("Togepi");
+
+        PokemonEntity result = huntService.updateExistingPokemon(pokemon, input);
+
+        assertEquals(originalDate, result.getDateFirstHunted());
+        assertEquals(2L, result.getHuntCount());
+    }
+
+    @Test
+    void updateHuntUpdatesHuntAndReturnsDTO() {
+        Long id = 1L;
+
+        HuntEntity existing = new HuntEntity();
+        existing.setId(id);
+        existing.setUsedGame("oldGame");
+        existing.setHuntMethod("oldMethod");
+        existing.setEncounters(50L);
+        existing.setHuntStatus(HuntStatus.FUTURE);
+        existing.setFinishDate(null);
+
+        HuntRequestDTO input = new HuntRequestDTO();
+        input.setUsedGame("Scarlet");
+        input.setHuntMethod("Masuda");
+        input.setEncounters(200L);
+        input.setHuntStatus(HuntStatus.CURRENT);
+        input.setFinishDate(null);
+
+        HuntResponseDTO expectedDto = new HuntResponseDTO();
+
+        when(huntRepository.findById(id)).thenReturn(Optional.of(existing));
+        when(huntMapper.mapToDto(existing)).thenReturn(expectedDto);
+
+        HuntResponseDTO result = huntService.updateHunt(id, input);
+
+        assertSame(expectedDto, result);
+        assertEquals("Scarlet", existing.getUsedGame());
+        assertEquals("Masuda", existing.getHuntMethod());
+        assertEquals(200L, existing.getEncounters());
+        assertEquals(HuntStatus.CURRENT, existing.getHuntStatus());
+
+        verify(huntRepository).save(existing);
+        verify(huntMapper).mapToDto(existing);
     }
 
     @Test
@@ -265,5 +614,24 @@ class HuntServiceTest {
 
         assertThrows(HuntNotFoundException.class, () -> huntService.deleteHunt(id));
         verify(huntRepository, never()).delete(any());
+    }
+
+    @Test
+    void deleteHuntThrowsWhenIdIsNull() {
+        assertThrows(IncorrectInputException.class, () -> huntService.deleteHunt(null));
+        verify(huntRepository, never()).findById(any());
+        verify(huntRepository, never()).delete(any());
+    }
+
+    @Test
+    void deleteHuntSuccessfully() {
+        Long id = 1L;
+
+        HuntEntity hunt = new HuntEntity();
+        hunt.setId(id);
+
+        when(huntRepository.findById(id)).thenReturn(Optional.of(hunt));
+        huntService.deleteHunt(id);
+        verify(huntRepository).delete(hunt);
     }
 }

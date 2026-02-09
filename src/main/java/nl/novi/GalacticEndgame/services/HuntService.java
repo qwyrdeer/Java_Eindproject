@@ -42,7 +42,7 @@ public class HuntService {
     public HuntResponseDTO findHuntById(Long id) {
         Optional<HuntEntity> huntEntity = huntRepository.findById(id);
         if (huntEntity.isEmpty()) {
-            throw new HuntNotFoundException("Hunt with id " +id + " is not found.");
+            throw new HuntNotFoundException("Hunt with id " + id + " is not found.");
         }
         return huntMapper.mapToDto(huntEntity.get());
     }
@@ -64,7 +64,7 @@ public class HuntService {
 
     @Transactional
     public List<HuntResponseDTO> findHuntsByUser_UsernameIgnoreCase(String username) {
-        if (username == null){
+        if (username == null) {
             throw new IncorrectInputException("Username cannot be null");
         }
         List<HuntEntity> hunts = huntRepository.findByUserEntity_UsernameIgnoreCase(username);
@@ -85,7 +85,7 @@ public class HuntService {
         if (status == null) {
             throw new IncorrectInputException("Status cannot be null");
         }
-        if (userId == null){
+        if (userId == null) {
             throw new IncorrectInputException("UserId cannot be null");
         }
         List<HuntEntity> hunts = huntRepository.findByUserEntity_UserIdAndHuntStatus(userId, status);
@@ -94,7 +94,7 @@ public class HuntService {
 
     @Transactional
     public List<HuntResponseDTO> findHuntsOfPokemonByName(String name) {
-        if (name == null){
+        if (name == null) {
             throw new IncorrectInputException("Name of Pokemon cannot be null");
         }
         List<HuntEntity> hunts = huntRepository.findByPokemon_NameIgnoreCase(name);
@@ -123,7 +123,7 @@ public class HuntService {
         return huntMapper.mapToDto(saved);
     }
 
-    private PokemonEntity updateExistingPokemon(PokemonEntity pokemon, HuntRequestDTO input) {
+    PokemonEntity updateExistingPokemon(PokemonEntity pokemon, HuntRequestDTO input) {
         if (!pokemon.getName().equalsIgnoreCase(input.getName())) {
             throw new IncorrectInputException(
                     "DexId " + input.getDexId() + " already exists with name '" +
@@ -138,7 +138,7 @@ public class HuntService {
     }
 
     private PokemonEntity createNewPokemon(HuntRequestDTO input, MultipartFile shinyImg) {
-        if (isFileEmpty(shinyImg)) {
+        if ((shinyImg).isEmpty()) {
             throw new IncorrectInputException("Adding a shiny GIF is required for new Pokémon");
         }
 
@@ -166,10 +166,6 @@ public class HuntService {
         return hunt;
     }
 
-    private boolean isFileEmpty(MultipartFile file) {
-        return file == null || file.isEmpty();
-    }
-
     @Transactional
     public HuntResponseDTO updateHunt(Long id, HuntRequestDTO huntInput) {
         if (huntInput == null) {
@@ -182,18 +178,16 @@ public class HuntService {
         existingHuntEntity.setEncounters(huntInput.getEncounters());
         existingHuntEntity.changeStatus(huntInput.getHuntStatus(), huntInput.getFinishDate());
 
-        if (huntInput.getHuntStatus() == HuntStatus.FINISHED && huntInput.getFinishDate() == null) {
-            throw new IncorrectInputException(
-                    "Finish date is required when hunt status is FINISHED"
-            );
-        }
-
+        HuntResponseDTO dto = huntMapper.mapToDto(existingHuntEntity);
         huntRepository.save(existingHuntEntity);
-        return huntMapper.mapToDto(existingHuntEntity);
+        return dto;
     }
 
     @Transactional
     public void deleteHunt(Long id) {
+        if (id == null) {
+            throw new IncorrectInputException("Id cannot be null");
+        }
         HuntEntity pokemon = getHuntEntity(id);
         huntRepository.delete(pokemon);
     }

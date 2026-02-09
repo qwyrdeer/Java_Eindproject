@@ -39,7 +39,6 @@ class UserServiceTest {
 
     @Test
     void uploadAvatarReplacesOldAvatar() {
-        // Arrange
         Long userId = 1L;
 
         ImageEntity existingAvatar = new ImageEntity();
@@ -56,18 +55,13 @@ class UserServiceTest {
 
         MultipartFile file = mock(MultipartFile.class);
 
-
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(imageService.storeImage(file, ImageType.AVATAR)).thenReturn(newAvatar);
         when(userRepository.save(user)).thenReturn(user);
         when(userMapper.mapToDto(any(UserEntity.class))).thenReturn(new UserResponseDTO());
 
-        //act
         userService.uploadAvatar(userId, file);
-
-        //Assert
         assertEquals(newAvatar, user.getUserAvatar());
-
         verify(imageService).deleteByUrl("/uploads/avatars/old.png");
 
     }

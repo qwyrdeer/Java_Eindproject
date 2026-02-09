@@ -84,7 +84,7 @@ public class UserService {
         return userMapper.mapToDto(saved);
     }
 
-    public void deleteUser(Long dexId) {
+    public void deleteUser(Long userId) {
     }
 
     @Transactional

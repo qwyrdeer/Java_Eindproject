@@ -14,8 +14,8 @@ import java.util.Optional;
 @Service
 public class ProfileService {
 
-    private ProfileRepository profileRepository;
-    private ProfileMapper profileMapper;
+    private final ProfileRepository profileRepository;
+    private final ProfileMapper profileMapper;
 
     public ProfileService(ProfileRepository profileRepository, ProfileMapper profileMapper) {
         this.profileRepository = profileRepository;
@@ -56,8 +56,4 @@ public class ProfileService {
         ProfileEntity saved = profileRepository.save(profileEntity);
         return profileMapper.mapToDto(saved);
     }
-
-
-//    createProfile; bij aanmaken user
-//    deleteProfile; bij deleten user
 }
