@@ -7,6 +7,7 @@ import nl.novi.GalacticEndgame.entities.ImageEntity;
 import nl.novi.GalacticEndgame.entities.PokemonEntity;
 import nl.novi.GalacticEndgame.entities.UserEntity;
 import nl.novi.GalacticEndgame.enums.HuntStatus;
+import nl.novi.GalacticEndgame.exeptions.HuntNotFoundException;
 import nl.novi.GalacticEndgame.exeptions.IncorrectInputException;
 import nl.novi.GalacticEndgame.mappers.HuntMapper;
 import nl.novi.GalacticEndgame.repositories.HuntRepository;
@@ -18,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -118,7 +120,7 @@ class HuntServiceTest {
         when(huntRepository.findById(id)).thenReturn(Optional.of(existing));
 
         //Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> huntService.updateHunt(id, input));
+        assertThrows(IncorrectInputException.class, () -> huntService.updateHunt(id, input));
         verify(huntRepository, never()).save(any());
     }
 
@@ -159,5 +161,109 @@ class HuntServiceTest {
         verify(huntRepository, never()).save(any(HuntEntity.class));
         verify(pokemonRepository, never()).save(any(PokemonEntity.class));
         verify(huntMapper, never()).mapToDto(any(HuntEntity.class));
+    }
+
+    @Test
+    void findHuntById() {
+    }
+
+    @Test
+    void findAllHuntsReturnsDTO() {
+        // assert
+        HuntEntity huntOne = new HuntEntity();
+        huntOne.setId(1L);
+        HuntEntity huntTwo = new HuntEntity();
+        huntTwo.setId(2L);
+        List<HuntEntity> hunts = List.of(huntOne, huntTwo);
+
+        HuntResponseDTO dtoOne = new HuntResponseDTO();
+        HuntResponseDTO dtoTwo = new HuntResponseDTO();
+        List<HuntResponseDTO> dtos = List.of(dtoOne, dtoTwo);
+
+        when(huntRepository.findAll()).thenReturn(hunts);
+        when(huntMapper.mapToDto(hunts)).thenReturn(dtos);
+
+        // Act
+        List<HuntResponseDTO> result = huntService.findAllHunts();
+
+        // assert
+        assertEquals(dtos.size(), result.size());
+        assertSame(dtos, result);
+
+        verify(huntRepository).findAll();
+        verify(huntMapper).mapToDto(hunts);
+
+    }
+
+    @Test
+    void findHuntsByUser_UserId() {
+    }
+
+    @Test
+    void findHuntsByUser_UsernameIgnoreCase() {
+    }
+
+    @Test
+    void findHuntsByStatus() {
+    }
+
+    @Test
+    void findHuntsByUserAndStatus() {
+    }
+
+    @Test
+    void findHuntsOfPokemonByName() {
+    }
+
+    @Test
+    void createHunt() {
+    }
+
+    @Test
+    void updateHuntWithoutInputThrows() {
+        Long id = 17L;
+        assertThrows(IncorrectInputException.class, () -> huntService.updateHunt(id, null));
+        verify(huntRepository, never()).save(any(HuntEntity.class));
+    }
+
+    @Test
+    void updateHuntWithNoFinishInputThrows() {
+        Long id = 17L;
+        HuntEntity hunt = new HuntEntity();
+        hunt.setId(id);
+        hunt.setHuntStatus(HuntStatus.CURRENT);
+
+        HuntRequestDTO dto = new HuntRequestDTO();
+        dto.setUsedGame("Scarlet");
+        dto.setHuntMethod("Masuda");
+        dto.setEncounters(100L);
+        dto.setHuntStatus(HuntStatus.FINISHED);
+        dto.setFinishDate(null);
+
+        when(huntRepository.findById(id)).thenReturn(Optional.of(hunt));
+
+        assertThrows(IncorrectInputException.class, () -> huntService.updateHunt(id, dto));
+
+        verify(huntRepository, never()).save(any());
+    }
+
+    @Test
+    void deleteHuntThatWasCreated() {
+        Long id = 1L;
+        HuntEntity hunt = new HuntEntity();
+        hunt.setId(id);
+
+        when(huntRepository.findById(id)).thenReturn(Optional.of(hunt));
+        huntService.deleteHunt(id);
+        verify(huntRepository).delete(hunt);
+    }
+
+    @Test
+    void deleteHuntThatDoesNotExist() {
+        Long id = 100L;
+        when(huntRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(HuntNotFoundException.class, () -> huntService.deleteHunt(id));
+        verify(huntRepository, never()).delete(any());
     }
 }

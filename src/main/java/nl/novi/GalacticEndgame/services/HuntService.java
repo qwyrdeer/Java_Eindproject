@@ -183,7 +183,7 @@ public class HuntService {
         existingHuntEntity.changeStatus(huntInput.getHuntStatus(), huntInput.getFinishDate());
 
         if (huntInput.getHuntStatus() == HuntStatus.FINISHED && huntInput.getFinishDate() == null) {
-            throw new IllegalArgumentException(
+            throw new IncorrectInputException(
                     "Finish date is required when hunt status is FINISHED"
             );
         }

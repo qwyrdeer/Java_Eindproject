@@ -3,6 +3,7 @@ package nl.novi.GalacticEndgame.entities;
 import jakarta.persistence.*;
 import nl.novi.GalacticEndgame.dtos.pokemon.PokemonRequestDTO;
 import nl.novi.GalacticEndgame.enums.HuntStatus;
+import nl.novi.GalacticEndgame.exeptions.IncorrectInputException;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -51,7 +52,7 @@ public class HuntEntity {
         this.huntStatus = newStatus;
         if (newStatus == HuntStatus.FINISHED) {
             if (userInputFinishDate == null) {
-                throw new IllegalArgumentException("finish date is required when finishing a hunt");
+                throw new IncorrectInputException("finish date is required when finishing a hunt");
             }
             this.finishDate = userInputFinishDate;
             this.finishedHunt = LocalDateTime.now();

@@ -16,10 +16,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class ImageService {
+
+    private static final Map<String, String> ALLOWED_FILETYPES = Map.of(
+            "image/png", ".png",
+            "image/jpeg", ".jpg",
+            "image/gif", ".gif",
+            "image/webp", ".webp"
+    );
 
     private final ImageRepository imageRepository;
     private final Path uploadRoot;
@@ -37,7 +46,19 @@ public class ImageService {
             throw new IncorrectInputException("No image file uploaded");
         }
 
+        String contentType = file.getContentType();
         String original = saveOriginalName(file.getOriginalFilename());
+
+        if (!ALLOWED_FILETYPES.containsKey(contentType)) {
+            throw new IncorrectInputException("Unsupported image type: " + contentType);
+        }
+
+        String expectedExt = ALLOWED_FILETYPES.get(contentType);
+        if (!original.toLowerCase().endsWith(expectedExt)) {
+            throw new IncorrectInputException(
+                    "File extension does not match content type"
+            );
+        }
         String ext = extension(original, file.getContentType());
         String stored = UUID.randomUUID() + ext;
 

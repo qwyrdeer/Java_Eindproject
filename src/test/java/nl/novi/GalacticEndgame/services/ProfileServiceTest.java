@@ -76,11 +76,22 @@ class ProfileServiceTest {
         when(profileRepository.findByUser_UserId(userId)).thenReturn(Optional.empty());
 
         //Act & Assert
-        assertThrows(ProfileNotFoundException.class,
-                () -> profileService.updateProfileByUserId(userId, input));
+        assertThrows(ProfileNotFoundException.class, () -> profileService.updateProfileByUserId(userId, input));
 
         verify(profileRepository).findByUser_UserId(userId);
         verify(profileRepository, never()).save(any());
         verify(profileMapper, never()).mapToDto(any(ProfileEntity.class));
+    }
+
+    @Test
+    void findProfileByUser_UserId() {
+    }
+
+    @Test
+    void findProfileByUser_UsernameIgnoreCase() {
+    }
+
+    @Test
+    void updateProfileByUserId() {
     }
 }

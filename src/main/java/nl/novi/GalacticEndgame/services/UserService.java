@@ -7,7 +7,6 @@ import nl.novi.GalacticEndgame.entities.ImageEntity;
 import nl.novi.GalacticEndgame.entities.ProfileEntity;
 import nl.novi.GalacticEndgame.entities.UserEntity;
 import nl.novi.GalacticEndgame.enums.ImageType;
-import nl.novi.GalacticEndgame.exeptions.ImageNotFoundException;
 import nl.novi.GalacticEndgame.exeptions.UserNotFoundException;
 import nl.novi.GalacticEndgame.mappers.UserMapper;
 import nl.novi.GalacticEndgame.repositories.UserRepository;
@@ -76,12 +75,12 @@ public class UserService {
 
         ImageEntity avatar = imageService.storeImage(file, ImageType.AVATAR);
         user.setUserAvatar(avatar);
-        UserEntity saved = userRepository.save(user);
 
         if (oldUrl != null) {
             imageService.deleteByUrl(oldUrl);
         }
 
+        UserEntity saved = userRepository.save(user);
         return userMapper.mapToDto(saved);
     }
 

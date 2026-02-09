@@ -52,7 +52,6 @@ public class PokemonService {
         return pokemonMapper.mapToDto(pokemonEntity);
     }
 
-
     private PokemonEntity getPokemonEntity(Long dexId) {
         Optional<PokemonEntity> pokemonEntity = pokemonRepository.findByDexId(dexId);
         if (pokemonEntity.isEmpty()) {
