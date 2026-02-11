@@ -7,6 +7,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,7 @@ public class ImageController {
     }
 
     @GetMapping("/avatar/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Resource> getAvatar(@PathVariable Long userId, HttpServletRequest request) {
         Resource resource = userService.loadUserAvatar(userId);
         String mimeType;
@@ -49,6 +51,7 @@ public class ImageController {
     }
 
     @GetMapping("/pkmn-gif/{dexId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Resource>  getShinyImg(@PathVariable Long dexId, HttpServletRequest request) {
         Resource resource = pokemonService.loadShinyImg(dexId);
         String mimeType;

@@ -9,6 +9,7 @@ import nl.novi.galacticEndgame.services.HuntService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,50 +26,57 @@ public class HuntController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<HuntResponseDTO>> getAllHunts() {
         List<HuntResponseDTO> hunts = huntService.findAllHunts();
         return new ResponseEntity<>(hunts, HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<HuntResponseDTO> getHuntsByUser_UserId(@PathVariable Long userId) {
         HuntResponseDTO hunt = huntService.findHuntById(userId);
         return new ResponseEntity<>(hunt, HttpStatus.OK);
     }
 
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<HuntResponseDTO>> getHuntsByStatus(@PathVariable HuntStatus status) {
         List<HuntResponseDTO> hunts = huntService.findHuntsByStatus(status);
         return new ResponseEntity<>(hunts, HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}/status/{status}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<HuntResponseDTO>> findHuntsByUserAndStatus(@PathVariable Long userId, @PathVariable HuntStatus status) {
         List<HuntResponseDTO> userStatusHunts = huntService.findHuntsByUserAndStatus(userId, status);
         return new ResponseEntity<>(userStatusHunts, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<HuntResponseDTO> getHuntById(@PathVariable Long id) {
         HuntResponseDTO hunt = huntService.findHuntById(id);
         return new ResponseEntity<>(hunt, HttpStatus.OK);
     }
 
 //    @ModelAttribute
-
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<HuntResponseDTO> createHunt(@RequestPart("data") @Valid HuntRequestDTO data, @RequestPart(value = "shinyImg", required = false) MultipartFile shinyImg) {
         HuntResponseDTO hunt = huntService.createHunt(data, shinyImg);
         return new ResponseEntity<>(hunt, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<HuntResponseDTO> updateHunt(@PathVariable Long id, @RequestBody @Valid HuntRequestDTO huntModel) {
         HuntResponseDTO updatedHunt = huntService.updateHunt(id, huntModel);
         return new ResponseEntity<>(updatedHunt, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteHunt(@PathVariable Long id) {
         huntService.deleteHunt(id);
