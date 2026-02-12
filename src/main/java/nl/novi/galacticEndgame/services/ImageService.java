@@ -33,9 +33,7 @@ public class ImageService {
     private final Path uploadRoot;
 
     public ImageService(@Value("${my.upload_location}") String uploadLocation, ImageRepository imageRepository) {
-        System.out.println("UPLOAD PATH = " + uploadLocation);
-
-        this.uploadRoot = Paths.get(uploadLocation).toAbsolutePath().normalize();
+        this.uploadRoot= Paths.get(uploadLocation).toAbsolutePath().normalize();
         this.imageRepository = imageRepository;
     }
 

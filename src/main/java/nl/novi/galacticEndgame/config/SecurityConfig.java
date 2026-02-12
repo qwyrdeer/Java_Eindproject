@@ -3,6 +3,7 @@ package nl.novi.galacticEndgame.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,11 +23,12 @@ import java.util.List;
 import java.util.Map;
 
 @Configuration
+@Profile("!test")
 public class SecurityConfig {
 
-    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    @Value("${spring.security.oauth2.resourceServer.jwt.issuer-uri}")
     private String issuer;
-    @Value("${spring.security.oauth2.resourceserver.jwt.audiences}")
+    @Value("${spring.security.oauth2.resourceServer.jwt.audiences}")
     private String audience;
     @Value("${client-id}")
     private String clientId;
@@ -43,23 +45,19 @@ public class SecurityConfig {
                                 .decoder(jwtDecoder())
                         ))
                 .authorizeHttpRequests(authorize -> authorize
-//                        .requestMatchers("/users/profile/update/{userId").hasAuthority("ROLE_USER")
+                                .requestMatchers(HttpMethod.GET, "/users", "/users/**").hasAnyAuthority("USER", "ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/hunts", "/hunts/**").hasAnyAuthority("USER", "ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/pokemon", "/pokemon/**").hasAnyAuthority("USER", "ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/images").hasAuthority("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET, "/users", "/users/**").hasAuthority("ROLE_USER")
-                        .requestMatchers(HttpMethod.GET, "/hunts", "/hunts/**").hasAuthority("ROLE_USER")
-                        .requestMatchers(HttpMethod.GET, "/images").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/hunts").hasAnyAuthority("USER", "ADMIN")
 
-                        .requestMatchers(HttpMethod.POST).hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/hunts").hasAuthority("ROLE_USER")
+                        .requestMatchers(HttpMethod.PUT, "/hunts/{id}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/users/profile/update/{userId}").hasAnyAuthority("USER", "ADMIN")
 
-                        .requestMatchers(HttpMethod.PUT).hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/hunts/{id}").hasAuthority("ROLE_USER")
-                        .requestMatchers(HttpMethod.PUT,"/users/profile/update/{userId}").hasAuthority("ROLE_USER")
+                        .requestMatchers(HttpMethod.DELETE, "/hunts/{id}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/users").hasAuthority("ADMIN")
 
-                        .requestMatchers(HttpMethod.DELETE, "/hunts/{id}").hasAuthority("ROLE_USER")
-                        .requestMatchers(HttpMethod.DELETE, "/users").hasRole("ADMIN")
-
-                        .requestMatchers(HttpMethod.GET).authenticated()
                         .anyRequest().denyAll()
                 )
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -112,3 +110,4 @@ public class SecurityConfig {
     }
 
 }
+
