@@ -39,6 +39,7 @@ public class HuntController {
         return new ResponseEntity<>(hunt, HttpStatus.OK);
     }
 
+
     @GetMapping("/status/{status}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<HuntResponseDTO>> getHuntsByStatus(@PathVariable HuntStatus status) {
