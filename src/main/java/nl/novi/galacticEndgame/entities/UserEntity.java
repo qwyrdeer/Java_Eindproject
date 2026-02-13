@@ -3,7 +3,6 @@ package nl.novi.galacticEndgame.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import nl.novi.galacticEndgame.enums.BlockDuration;
-import nl.novi.galacticEndgame.enums.UserRole;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,6 +11,10 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class UserEntity {
+
+    @Column(unique = true, nullable = false)
+    private String kcid;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
@@ -24,10 +27,6 @@ public class UserEntity {
 
     @Column(name = "edited_date")
     private LocalDateTime editedAt;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "user_role", nullable = false)
-    private UserRole userRole;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
     private ProfileEntity profileEntity;
@@ -81,6 +80,14 @@ public class UserEntity {
     // ------ getters & setters
 
 
+    public String getKcid() {
+        return kcid;
+    }
+
+    public void setKcid(String kcid) {
+        this.kcid = kcid;
+    }
+
     public Long getUserId() {
         return userId;
     }
@@ -111,14 +118,6 @@ public class UserEntity {
 
     public void setEditedAt(LocalDateTime editedAt) {
         this.editedAt = editedAt;
-    }
-
-    public UserRole getUserRole() {
-        return userRole;
-    }
-
-    public void setUserRole(UserRole userRole) {
-        this.userRole = userRole;
     }
 
     public ProfileEntity getProfile() {

@@ -1,9 +1,10 @@
 package nl.novi.galacticEndgame.mappers;
 
+import nl.novi.galacticEndgame.dtos.user.UserExtendedDTO;
 import nl.novi.galacticEndgame.dtos.user.UserRequestDTO;
 import nl.novi.galacticEndgame.dtos.user.UserResponseDTO;
+import nl.novi.galacticEndgame.entities.ImageEntity;
 import nl.novi.galacticEndgame.entities.UserEntity;
-import nl.novi.galacticEndgame.enums.UserRole;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -23,21 +24,47 @@ public class UserMapper implements DTOMapper<UserResponseDTO, UserRequestDTO, Us
 
     public UserResponseDTO mapToDto(UserEntity model) {return mapToDto(model, new UserResponseDTO());}
 
-    public <D extends UserResponseDTO> D mapToDto(UserEntity model, D target) {
-        target.setUserId(model.getUserId());
-        target.setUsername(model.getUsername());
-        target.setUserAvatarUrl("/uploads/avatars/" + target.getUserId());
-        target.setUserRole(model.getUserRole());
-        target.setCreatedAt(model.getCreatedAt());
-        target.setHunts(huntMapper.mapToDto(model.getHunts()));
+    public <D extends UserResponseDTO> D mapToDto(UserEntity model, D dto) {
+        dto.setUserId(model.getUserId());
+        dto.setUsername(model.getUsername());
+
+        ImageEntity avatar = model.getUserAvatar();
+        if (avatar != null) {
+            dto.setUserAvatarUrl("/uploads/avatars/" + avatar.getStoredName());
+        } else {
+            dto.setUserAvatarUrl(null);
+        }
+
+        dto.setCreatedAt(model.getCreatedAt());
+        dto.setHunts(huntMapper.mapToDto(model.getHunts()));
 
         if (model.getProfile() != null) {
-            target.setProfile(
+            dto.setProfile(
                     profileMapper.mapToDto(model.getProfile())
             );
         }
 
-        return target;
+        return dto;
+    }
+
+    public UserExtendedDTO mapToExtendedDto(UserEntity user) {
+        UserExtendedDTO dto = new UserExtendedDTO();
+        dto.setKcid(user.getKcid());
+        dto.setBlocked(user.isBlocked());
+        dto.setBlockedUntil(user.getBlockedUntil());
+        dto.setBlockReason(user.getBlockReason());
+        dto.setCreatedAt(user.getCreatedAt());
+        dto.setUserId(user.getUserId());
+        dto.setUsername(user.getUsername());
+
+        ImageEntity avatar = user.getUserAvatar();
+        if (avatar != null) {
+            dto.setUserAvatarUrl("/uploads/avatars/" + avatar.getStoredName());
+        } else {
+            dto.setUserAvatarUrl(null);
+        }
+
+        return dto;
     }
 
     @Override
@@ -53,7 +80,7 @@ public class UserMapper implements DTOMapper<UserResponseDTO, UserRequestDTO, Us
     public UserEntity mapToEntity(UserRequestDTO userModel) {
         UserEntity entity = new UserEntity();
         entity.setUsername(userModel.getUsername());
-        entity.setUserRole(UserRole.USER);
+        entity.setKcid(userModel.getKcid());
         entity.setCreatedAt(LocalDateTime.now());
         return entity;
     }

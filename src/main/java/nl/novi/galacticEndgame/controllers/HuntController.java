@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,7 +40,6 @@ public class HuntController {
         return new ResponseEntity<>(hunt, HttpStatus.OK);
     }
 
-
     @GetMapping("/status/{status}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<HuntResponseDTO>> getHuntsByStatus(@PathVariable HuntStatus status) {
@@ -64,15 +64,18 @@ public class HuntController {
 //    @ModelAttribute
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<HuntResponseDTO> createHunt(@RequestPart("data") @Valid HuntRequestDTO data, @RequestPart(value = "shinyImg", required = false) MultipartFile shinyImg) {
-        HuntResponseDTO hunt = huntService.createHunt(data, shinyImg);
-        return new ResponseEntity<>(hunt, HttpStatus.CREATED);
+    public ResponseEntity<HuntResponseDTO> createHunt(
+            @RequestPart HuntRequestDTO data,
+            @RequestPart(required = false) MultipartFile shinyImg, Authentication authentication) {
+
+        HuntResponseDTO created = huntService.createHunt(data, shinyImg, authentication);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<HuntResponseDTO> updateHunt(@PathVariable Long id, @RequestBody @Valid HuntRequestDTO huntModel) {
-        HuntResponseDTO updatedHunt = huntService.updateHunt(id, huntModel);
+    public ResponseEntity<HuntResponseDTO> updateHunt(@PathVariable Long id, @RequestBody @Valid HuntRequestDTO huntModel, Authentication authentication) {
+        HuntResponseDTO updatedHunt = huntService.updateHunt(id, huntModel, authentication);
         return new ResponseEntity<>(updatedHunt, HttpStatus.OK);
     }
 
