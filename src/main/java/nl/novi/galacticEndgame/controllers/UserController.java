@@ -7,6 +7,7 @@ import nl.novi.galacticEndgame.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,16 +44,16 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO dto) {
-        UserResponseDTO created = userService.createUser(dto);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDTO> getCurrentUser(Authentication authentication) {
+        UserResponseDTO user = userService.findOrCreateUser(authentication);
+        return ResponseEntity.ok(user);
     }
 
-    @PutMapping("/{userId}/avatar/upload")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<UserResponseDTO> uploadAvatar(@PathVariable Long userId, @RequestParam("file") MultipartFile file) {
-        UserResponseDTO avatar = userService.uploadAvatar(userId, file);
+    @PostMapping("/{userId}/avatar")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<UserResponseDTO> uploadAvatar(@PathVariable Authentication authentication, @RequestParam("file") MultipartFile file) {
+        UserResponseDTO avatar = userService.uploadAvatar(authentication, file);
         return new ResponseEntity<>(avatar, HttpStatus.OK);
     }
 

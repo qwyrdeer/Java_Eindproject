@@ -2,7 +2,6 @@ package nl.novi.galacticEndgame.dtos.user;
 
 import nl.novi.galacticEndgame.dtos.hunt.HuntResponseDTO;
 import nl.novi.galacticEndgame.dtos.profile.ProfileResponseDTO;
-import nl.novi.galacticEndgame.enums.UserRole;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.List;
 public class UserResponseDTO {
     private Long userId;
     private String username;
-    private UserRole userRole;
     private String userAvatarUrl;
     private LocalDateTime createdAt;
     private ProfileResponseDTO profile;
@@ -32,14 +30,6 @@ public class UserResponseDTO {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public UserRole getUserRole() {
-        return userRole;
-    }
-
-    public void setUserRole(UserRole userRole) {
-        this.userRole = userRole;
     }
 
     public String getUserAvatarUrl() {

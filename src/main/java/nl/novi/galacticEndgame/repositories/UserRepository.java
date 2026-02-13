@@ -11,6 +11,9 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findUserByUsernameIgnoreCase(String username);
     List<UserEntity> findAll();
 
+    boolean existsByKcid(String kcid);
+    Optional<UserEntity> findByKcid(String kcid);
+
     @Override
     void delete(UserEntity entity);
 

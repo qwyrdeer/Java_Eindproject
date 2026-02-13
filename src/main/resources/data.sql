@@ -4,9 +4,9 @@ VALUES
 
 ('TOGEPI.GIF', 'togepi.gif', 'image/gif', 2000, 'PKMN_GIF', NOW());
 
-INSERT INTO users (username, avatar_image, user_role, create_date, last_login, blocked, blocked_until, block_reason)
+INSERT INTO users (kcid, username, avatar_image, create_date, last_login, blocked, blocked_until, block_reason)
 VALUES
-('Misty', 1, 'ADMIN', '2026-01-10 20:15:00', NOW(), false, null, null);
+('seed-admin-1', 'Ash', 1, '2026-01-10 20:15:00', NOW(), false, null, null);
 
 INSERT INTO profiles (user_id, profile_text, twitch_url, youtube_url, discord_url)
 VALUES

@@ -23,8 +23,6 @@ public class HuntRequestDTO {
     @PastOrPresent
     private LocalDate finishDate;
 
-    private Long userId;
-
     @NotNull(message = "dexId is required")
     @Positive
     private Long dexId;
@@ -33,12 +31,18 @@ public class HuntRequestDTO {
 
     @AssertTrue(message = "Encounters must be 1 or more than 1 when huntStatus is set to finished")
     public boolean isEncountersValidForFinished() {
-        return huntStatus != HuntStatus.FINISHED || encounters >= 1;
+        if (huntStatus == HuntStatus.FINISHED) {
+            return encounters != null && encounters >= 1;
+        }
+        return true;
     }
 
     @AssertTrue(message = "Finish date is required when hunt status is set to finished")
     public boolean isFinishDateValidForFinished() {
-        return huntStatus != HuntStatus.FINISHED || finishDate != null;
+        if (huntStatus == HuntStatus.FINISHED) {
+            return finishDate != null;
+        }
+        return true;
     }
 
     // -- getters en setters
@@ -81,14 +85,6 @@ public class HuntRequestDTO {
 
     public void setFinishDate(LocalDate finishDate) {
         this.finishDate = finishDate;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 
     public Long getDexId() {

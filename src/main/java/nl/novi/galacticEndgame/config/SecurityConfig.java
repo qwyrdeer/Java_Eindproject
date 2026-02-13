@@ -45,19 +45,20 @@ public class SecurityConfig {
                                 .decoder(jwtDecoder())
                         ))
                 .authorizeHttpRequests(authorize -> authorize
-                                .requestMatchers(HttpMethod.GET, "/users", "/users/**").hasAnyAuthority("USER", "ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/hunts", "/hunts/**").hasAnyAuthority("USER", "ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/pokemon", "/pokemon/**").hasAnyAuthority("USER", "ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/images").hasAuthority("ADMIN")
+                        .requestMatchers("/").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/users", "/users/**").hasAnyRole("USER", "ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/hunts", "/hunts/**").hasAnyRole("USER", "ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/pokemon", "/pokemon/**").hasAnyRole("USER", "ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/uploads", "/uploads/**").hasAnyRole("USER", "ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/images").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.POST, "/hunts").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/hunts").hasAnyRole("USER", "ADMIN")
 
-                        .requestMatchers(HttpMethod.PUT, "/hunts/{id}").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT,"/users/profile/update/{userId}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/hunts/{id}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/users/{userId}/avatar").hasAnyRole("USER", "ADMIN")
 
-                        .requestMatchers(HttpMethod.DELETE, "/hunts/{id}").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/users").hasAuthority("ADMIN")
-
+                        .requestMatchers(HttpMethod.DELETE, "/hunts/{id}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/users").hasRole("ADMIN")
                         .anyRequest().denyAll()
                 )
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -3,10 +3,10 @@ package nl.novi.galacticEndgame;
 import jakarta.transaction.Transactional;
 import nl.novi.galacticEndgame.entities.PokemonEntity;
 import nl.novi.galacticEndgame.entities.UserEntity;
-import nl.novi.galacticEndgame.enums.UserRole;
 import nl.novi.galacticEndgame.repositories.HuntRepository;
 import nl.novi.galacticEndgame.repositories.PokemonRepository;
 import nl.novi.galacticEndgame.repositories.UserRepository;
+import nl.novi.galacticEndgame.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +16,12 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters= false)
+@AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
 class HuntIntegrationTest {
@@ -32,12 +33,15 @@ class HuntIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private PokemonRepository pokemonRepository;
 
     @Autowired
     private HuntRepository huntRepository;
 
-    private Long userId;
+    private static final String TESTID = "test-user-123";
 
     @BeforeEach
     void setup() {
@@ -46,10 +50,9 @@ class HuntIntegrationTest {
         userRepository.deleteAll();
 
         UserEntity user = new UserEntity();
+        user.setKcid(TESTID);
         user.setUsername("Ash");
-        user.setUserRole(UserRole.ADMIN);
-        user = userRepository.save(user);
-        userId = user.getUserId();
+        userRepository.save(user);
 
         PokemonEntity pokemon = new PokemonEntity();
         pokemon.setDexId(133L);
@@ -62,7 +65,6 @@ class HuntIntegrationTest {
     void huntShouldBeCreated() throws Exception {
         String huntJson = """
     {
-      "userId": 1,
       "dexId": 133,
       "name": "Eevee",
       "usedGame": "Scarlet",
@@ -80,7 +82,12 @@ class HuntIntegrationTest {
         );
 
         mockMvc.perform(multipart("/hunts")
-                        .file(jsonPart))
+                        .file(jsonPart)
+                        .with(jwt().jwt(jwt -> jwt
+                                .claim("sub", TESTID)
+                                .claim("preferred_username", "Ash")
+                        ))
+                        )
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.pokemon.dexId").value(133))
