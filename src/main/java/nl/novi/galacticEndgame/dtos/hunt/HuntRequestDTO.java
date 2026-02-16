@@ -1,31 +1,40 @@
 package nl.novi.galacticEndgame.dtos.hunt;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import nl.novi.galacticEndgame.enums.HuntStatus;
 
 import java.time.LocalDate;
 
+@Schema(description = "Request for creating a hunt")
 public class HuntRequestDTO {
 
     @NotBlank
+    @Schema(example = "Scarlet")
     private String usedGame;
 
     @NotBlank
+    @Schema(example = "Random encounters")
     private String huntMethod;
 
     @Min(0)
     @Max(99999)
+    @Schema(example = "1000")
     private Long encounters;
 
     @NotNull
     private HuntStatus huntStatus;
 
     @PastOrPresent
+    @Schema(example = "27-02-2026")
     private LocalDate finishDate;
 
+    @Schema(example = "150")
     @NotNull(message = "dexId is required")
     @Positive
     private Long dexId;
+
+    @Schema(example = "Mewtwo")
     private String name;
     private String shinyImg;
 

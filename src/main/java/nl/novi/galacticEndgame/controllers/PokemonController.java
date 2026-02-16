@@ -1,5 +1,7 @@
 package nl.novi.galacticEndgame.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import nl.novi.galacticEndgame.dtos.pokemon.PokemonRequestDTO;
 import nl.novi.galacticEndgame.dtos.pokemon.PokemonResponseDTO;
@@ -17,6 +19,7 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("/pokemon")
+@Tag(name = "Pokemon", description = "Manage Pokémon")
 public class PokemonController {
 
     private final PokemonService pokemonService;
@@ -29,6 +32,7 @@ public class PokemonController {
 
     @GetMapping
     @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "get all pokemon")
     public ResponseEntity<List<PokemonResponseDTO>> getAllPokemon() {
         List<PokemonResponseDTO> pokemon = pokemonService.findAllPokemon();
         return new ResponseEntity<>(pokemon, HttpStatus.OK);
@@ -36,6 +40,7 @@ public class PokemonController {
 
     @GetMapping("/{dexId}")
     @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "get all pokemon by dexId")
     public ResponseEntity<PokemonResponseDTO> getPokemonByDexId(@PathVariable Long dexId) {
         PokemonResponseDTO pokemon = pokemonService.findPokemonByDexId(dexId);
         return new ResponseEntity<>(pokemon, HttpStatus.OK);
@@ -44,6 +49,7 @@ public class PokemonController {
     // alleen met aanmaken hunt?
     @PostMapping
     @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "create a pokemon")
     public ResponseEntity<PokemonResponseDTO> createPokemon (@Valid @RequestBody PokemonRequestDTO pokemonModel) {
         PokemonResponseDTO newPokemon = pokemonService.createPokemon(pokemonModel);
         return ResponseEntity.created(urlHelper.getCurrentUrlWithId(newPokemon.getDexId())).body(newPokemon);
@@ -51,6 +57,7 @@ public class PokemonController {
 
     @PutMapping("/{dexId}/gif/upload")
     @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "upload a shiny image (gif)")
     public ResponseEntity<PokemonResponseDTO> uploadShinyImg(@PathVariable Long dexId, @RequestParam("file") MultipartFile file) {
         PokemonResponseDTO shinyImg = pokemonService.uploadGif(dexId, file);
         return new ResponseEntity<>(shinyImg, HttpStatus.OK);
@@ -61,6 +68,7 @@ public class PokemonController {
 
     @PutMapping("/{dexId}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "update a pokemon (admin)")
     public ResponseEntity<PokemonResponseDTO> updatePokemon(@PathVariable Long id, @RequestBody @Valid PokemonRequestDTO pokemonModel) {
         PokemonResponseDTO updatedPokemon = pokemonService.updatePokemon(id, pokemonModel);
         return new ResponseEntity<>(updatedPokemon, HttpStatus.OK);
@@ -69,6 +77,7 @@ public class PokemonController {
     // ook admin dus?
     @DeleteMapping("/{dexId}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "delete a pokemon (admin)")
     public ResponseEntity<Void> deletePokemon(@PathVariable Long dexId) {
         pokemonService.deletePokemon(dexId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

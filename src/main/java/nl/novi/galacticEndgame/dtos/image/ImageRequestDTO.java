@@ -1,10 +1,12 @@
 package nl.novi.galacticEndgame.dtos.image;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+@Schema(description = "Request for adding images")
 public class ImageRequestDTO {
 
     private static final long MAX_BYTES = 2_000_000;

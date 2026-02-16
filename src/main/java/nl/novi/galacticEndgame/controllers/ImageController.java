@@ -1,5 +1,7 @@
 package nl.novi.galacticEndgame.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import nl.novi.galacticEndgame.services.PokemonService;
 import nl.novi.galacticEndgame.services.UserService;
@@ -17,6 +19,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/images")
+@Tag(name = "images", description = "Manage gif and avatars")
 public class ImageController {
 
     private final UserService userService;
@@ -29,6 +32,7 @@ public class ImageController {
 
     @GetMapping("/avatar/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "get an avatar")
     public ResponseEntity<Resource> getAvatar(@PathVariable Long userId, HttpServletRequest request) {
         Resource resource = userService.loadUserAvatar(userId);
         String mimeType;
@@ -52,6 +56,7 @@ public class ImageController {
 
     @GetMapping("/pkmn-gif/{dexId}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "get a shiny image")
     public ResponseEntity<Resource>  getShinyImg(@PathVariable Long dexId, HttpServletRequest request) {
         Resource resource = pokemonService.loadShinyImg(dexId);
         String mimeType;

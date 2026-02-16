@@ -1,5 +1,7 @@
 package nl.novi.galacticEndgame.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import nl.novi.galacticEndgame.dtos.user.UserRequestDTO;
 import nl.novi.galacticEndgame.dtos.user.UserResponseDTO;
@@ -15,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@Tag(name = "users", description = "Manage users")
 public class UserController {
 
     private final UserService userService;
@@ -39,12 +42,14 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "find all users")
     public ResponseEntity<List<UserResponseDTO>> findAllUsers() {
         List<UserResponseDTO> users = userService.findAllUsers();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @GetMapping("/me")
+    @Operation(summary = "find yourself")
     public ResponseEntity<UserResponseDTO> getCurrentUser(Authentication authentication) {
         UserResponseDTO user = userService.findOrCreateUser(authentication);
         return ResponseEntity.ok(user);
@@ -52,6 +57,7 @@ public class UserController {
 
     @PostMapping("/me/avatar")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @Operation(summary = "upload your avatar")
     public ResponseEntity<UserResponseDTO> uploadAvatar(Authentication authentication, @RequestParam("file") MultipartFile file) {
         UserResponseDTO avatar = userService.uploadAvatar(authentication, file);
         return new ResponseEntity<>(avatar, HttpStatus.OK);
@@ -59,6 +65,7 @@ public class UserController {
 
     @DeleteMapping("/id/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "delete a user")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
