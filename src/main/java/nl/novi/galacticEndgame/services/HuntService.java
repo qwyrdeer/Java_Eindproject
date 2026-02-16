@@ -9,11 +9,11 @@ import nl.novi.galacticEndgame.entities.UserEntity;
 import nl.novi.galacticEndgame.enums.HuntStatus;
 import nl.novi.galacticEndgame.exeptions.HuntNotFoundException;
 import nl.novi.galacticEndgame.exeptions.IncorrectInputException;
-import nl.novi.galacticEndgame.exeptions.UserNotFoundException;
 import nl.novi.galacticEndgame.mappers.HuntMapper;
 import nl.novi.galacticEndgame.repositories.HuntRepository;
 import nl.novi.galacticEndgame.repositories.PokemonRepository;
 import nl.novi.galacticEndgame.repositories.UserRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,13 +27,15 @@ public class HuntService {
     private final HuntMapper huntMapper;
     private final HuntRepository huntRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final PokemonRepository pokemonRepository;
     private final PokemonService pokemonService;
 
-    public HuntService(HuntMapper huntMapper, HuntRepository huntRepository, UserRepository userRepository, PokemonRepository pokemonRepository, PokemonService pokemonService) {
+    public HuntService(HuntMapper huntMapper, HuntRepository huntRepository, UserService userService, UserRepository userRepository, PokemonRepository pokemonRepository, PokemonService pokemonService) {
         this.huntMapper = huntMapper;
         this.huntRepository = huntRepository;
         this.userRepository = userRepository;
+        this.userService = userService;
         this.pokemonRepository = pokemonRepository;
         this.pokemonService = pokemonService;
     }
@@ -110,19 +112,24 @@ public class HuntService {
     }
 
     @Transactional
-    public HuntResponseDTO createHunt(HuntRequestDTO input, MultipartFile shinyImg) {
-        UserEntity user = userRepository.findById(input.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    public HuntResponseDTO createHunt(HuntRequestDTO input, MultipartFile shinyImg, Authentication authentication) {
+        UserEntity user = userService.getCurrentUser(authentication);
 
         PokemonEntity pokemon = pokemonRepository.findByDexId(input.getDexId())
                 .map(existing -> {
-                            if (shinyImg != null && !shinyImg.isEmpty()) {
-                                throw new IncorrectInputException("GIF can only be uploaded at the first hunt of a Pokémon");}
-                            return updateExistingPokemon(existing, input);})
+                    if (shinyImg != null && !shinyImg.isEmpty()) {
+                        throw new IncorrectInputException(
+                                "GIF can only be uploaded at the first hunt of a Pokémon"
+                        );
+                    }
+                    return updateExistingPokemon(existing, input);
+                })
                 .orElseGet(() -> createNewPokemon(input, shinyImg));
 
         HuntEntity hunt = createHuntEntity(user, pokemon, input);
+
         HuntEntity saved = huntRepository.save(hunt);
+
         return huntMapper.mapToDto(saved);
     }
 
@@ -167,7 +174,7 @@ public class HuntService {
     }
 
     @Transactional
-    public HuntResponseDTO updateHunt(Long id, HuntRequestDTO huntInput) {
+    public HuntResponseDTO updateHunt(Long id, HuntRequestDTO huntInput, Authentication authentication) {
         if (huntInput == null) {
             throw new IncorrectInputException("Hunt input cannot be null");
         }

@@ -1,5 +1,6 @@
 package nl.novi.galacticEndgame.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import nl.novi.galacticEndgame.enums.HuntStatus;
 import nl.novi.galacticEndgame.exeptions.IncorrectInputException;

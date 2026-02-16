@@ -13,12 +13,12 @@ import nl.novi.galacticEndgame.exeptions.IncorrectInputException;
 import nl.novi.galacticEndgame.mappers.HuntMapper;
 import nl.novi.galacticEndgame.repositories.HuntRepository;
 import nl.novi.galacticEndgame.repositories.PokemonRepository;
-import nl.novi.galacticEndgame.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -42,13 +42,15 @@ class HuntServiceTest {
     @Mock
     PokemonService pokemonService;
     @Mock
-    UserRepository userRepository;
+    UserService userService;
     @InjectMocks
     HuntService huntService;
 
     @Test
     void updateHuntShouldUpdatePreviousCreatedHuntWithNewData() {
         Long id = 1L;
+        Authentication authentication = mock(Authentication.class);
+
         UserEntity user = new UserEntity();
         user.setUserId(1L);
 
@@ -79,7 +81,7 @@ class HuntServiceTest {
         HuntResponseDTO expected = new HuntResponseDTO();
         when(huntMapper.mapToDto(existing)).thenReturn(expected);
 
-        HuntResponseDTO result = huntService.updateHunt(id, input);
+        HuntResponseDTO result = huntService.updateHunt(id, input, authentication);
 
         assertEquals(200, existing.getEncounters());
         assertEquals("new", existing.getUsedGame());
@@ -92,6 +94,7 @@ class HuntServiceTest {
     @Test
     void updateHuntThrowsWhenHuntDoesNotExist() {
         Long id = 99L;
+        Authentication authentication = mock(Authentication.class);
 
         HuntRequestDTO input = new HuntRequestDTO();
         input.setUsedGame("Scarlet");
@@ -102,7 +105,7 @@ class HuntServiceTest {
 
         when(huntRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(HuntNotFoundException.class, () -> huntService.updateHunt(id, input));
+        assertThrows(HuntNotFoundException.class, () -> huntService.updateHunt(id, input, authentication));
 
         verify(huntRepository, never()).save(any());
         verify(huntMapper, never()).mapToDto((HuntEntity) any());
@@ -111,45 +114,35 @@ class HuntServiceTest {
     @Test
     void updateHuntThrowsWhenNoInputForFinishDate() {
         Long id = 1L;
+        Authentication authentication = mock(Authentication.class);
 
         UserEntity user = new UserEntity();
         user.setUserId(1L);
 
         PokemonEntity pokemon = new PokemonEntity();
         pokemon.setDexId(175L);
-        pokemon.setName("Togepi");
 
         HuntEntity existing = new HuntEntity();
         existing.setId(id);
         existing.setUser(user);
         existing.setPokemon(pokemon);
 
-        existing.setUsedGame("old");
-        existing.setHuntMethod("old");
-        existing.setHuntStatus(HuntStatus.CURRENT);
-        existing.setEncounters(100L);
-        existing.setFinishDate(null);
-
         HuntRequestDTO input = new HuntRequestDTO();
-        input.setUsedGame("new");
-        input.setHuntMethod("new");
-        input.setEncounters(200L);
         input.setHuntStatus(HuntStatus.FINISHED);
         input.setFinishDate(null);
 
         when(huntRepository.findById(id)).thenReturn(Optional.of(existing));
 
-        assertThrows(IncorrectInputException.class, () -> huntService.updateHunt(id, input));
-        verify(huntRepository, never()).save(any());
+        assertThrows(IncorrectInputException.class, () -> huntService.updateHunt(id, input, authentication));
     }
 
     @Test
     void createHuntButPokemonIdAndNameAreNotAMatchWithPreviousInputSoThrowAndDoNotSaveHunt() {
         Long dexId = 175L;
         Long userId = 1L;
+        Authentication authentication = mock(Authentication.class);
 
         HuntRequestDTO create = new HuntRequestDTO();
-        create.setUserId(userId);
         create.setDexId(dexId);
         create.setName("Pikachu");
         create.setUsedGame("SV");
@@ -170,10 +163,9 @@ class HuntServiceTest {
         existing.setShinyImg(existingImage);
         existing.setHuntCount(10L);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(pokemonRepository.findByDexId(dexId)).thenReturn(Optional.of(existing));
 
-        assertThrows(IncorrectInputException.class, () -> huntService.createHunt(create, null));
+        assertThrows(IncorrectInputException.class, () -> huntService.createHunt(create, null, authentication));
 
         verify(huntRepository, never()).save(any(HuntEntity.class));
         verify(pokemonRepository, never()).save(any(PokemonEntity.class));
@@ -393,9 +385,9 @@ class HuntServiceTest {
     void createHuntCreatesHuntWhenUserAndPokemonAreValid() {
         Long userId = 1L;
         Long dexId = 175L;
+        Authentication authentication = mock(Authentication.class);
 
         HuntRequestDTO input = new HuntRequestDTO();
-        input.setUserId(userId);
         input.setDexId(dexId);
         input.setName("Togepi");
         input.setUsedGame("SV");
@@ -416,16 +408,14 @@ class HuntServiceTest {
 
         HuntResponseDTO responseDTO = new HuntResponseDTO();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(pokemonRepository.findByDexId(dexId)).thenReturn(Optional.of(existingPokemon));
         when(huntRepository.save(any(HuntEntity.class))).thenReturn(savedHunt);
         when(huntMapper.mapToDto(savedHunt)).thenReturn(responseDTO);
 
-        HuntResponseDTO result = huntService.createHunt(input, null);
+        HuntResponseDTO result = huntService.createHunt(input, null, authentication);
 
         assertSame(responseDTO, result);
 
-        verify(userRepository).findById(userId);
         verify(pokemonRepository).findByDexId(dexId);
         verify(huntRepository).save(any(HuntEntity.class));
         verify(huntMapper).mapToDto(savedHunt);
@@ -435,9 +425,9 @@ class HuntServiceTest {
     void createHuntCreatesNewPokemonWhenPokemonDoesNotExist() {
         Long userId = 1L;
         Long dexId = 1050L;
+        Authentication authentication = mock(Authentication.class);
 
         HuntRequestDTO input = new HuntRequestDTO();
-        input.setUserId(userId);
         input.setDexId(dexId);
         input.setName("New");
         input.setUsedGame("SV");
@@ -459,17 +449,15 @@ class HuntServiceTest {
         HuntEntity savedHunt = new HuntEntity();
         HuntResponseDTO responseDTO = new HuntResponseDTO();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(pokemonRepository.findByDexId(dexId)).thenReturn(Optional.empty());
         when(pokemonRepository.save(any(PokemonEntity.class))).thenReturn(newPokemon);
         when(huntRepository.save(any(HuntEntity.class))).thenReturn(savedHunt);
         when(huntMapper.mapToDto(savedHunt)).thenReturn(responseDTO);
 
-        HuntResponseDTO result = huntService.createHunt(input, shinyImg);
+        HuntResponseDTO result = huntService.createHunt(input, shinyImg, authentication);
 
         assertSame(responseDTO, result);
 
-        verify(userRepository).findById(userId);
         verify(pokemonRepository).findByDexId(dexId);
         verify(pokemonRepository).save(any(PokemonEntity.class));
         verify(huntRepository).save(any(HuntEntity.class));
@@ -506,8 +494,9 @@ class HuntServiceTest {
 
     @Test
     void createHuntExistingPokemonAndShinyGifThrows() {
+        Authentication authentication = mock(Authentication.class);
+
         HuntRequestDTO input = new HuntRequestDTO();
-        input.setUserId(1L);
         input.setDexId(25L);
         input.setName("Pikachu");
 
@@ -522,10 +511,9 @@ class HuntServiceTest {
         MultipartFile shinyImg = mock(MultipartFile.class);
         when(shinyImg.isEmpty()).thenReturn(false);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(pokemonRepository.findByDexId(25L)).thenReturn(Optional.of(existingPokemon));
 
-        IncorrectInputException exception = assertThrows(IncorrectInputException.class, () -> huntService.createHunt(input, shinyImg));
+        IncorrectInputException exception = assertThrows(IncorrectInputException.class, () -> huntService.createHunt(input, shinyImg, authentication));
 
         assertEquals("GIF can only be uploaded at the first hunt of a Pokémon", exception.getMessage());
 
@@ -537,7 +525,8 @@ class HuntServiceTest {
     @Test
     void updateHuntWithoutInputThrows() {
         Long id = 17L;
-        assertThrows(IncorrectInputException.class, () -> huntService.updateHunt(id, null));
+        Authentication authentication = mock(Authentication.class);
+        assertThrows(IncorrectInputException.class, () -> huntService.updateHunt(id, null, authentication));
         verify(huntRepository, never()).save(any(HuntEntity.class));
     }
 
@@ -562,6 +551,7 @@ class HuntServiceTest {
     @Test
     void updateHuntWithNoFinishInputThrows() {
         Long id = 17L;
+        Authentication authentication = mock(Authentication.class);
         HuntEntity hunt = new HuntEntity();
         hunt.setId(id);
         hunt.setHuntStatus(HuntStatus.CURRENT);
@@ -574,7 +564,7 @@ class HuntServiceTest {
         dto.setFinishDate(null);
 
         when(huntRepository.findById(id)).thenReturn(Optional.of(hunt));
-        assertThrows(IncorrectInputException.class, () -> huntService.updateHunt(id, dto));
+        assertThrows(IncorrectInputException.class, () -> huntService.updateHunt(id, dto, authentication));
         verify(huntRepository, never()).save(any());
     }
 
@@ -601,6 +591,7 @@ class HuntServiceTest {
     @Test
     void updateHuntUpdatesHuntAndReturnsDTO() {
         Long id = 1L;
+        Authentication authentication = mock(Authentication.class);
 
         HuntEntity existing = new HuntEntity();
         existing.setId(id);
@@ -622,7 +613,7 @@ class HuntServiceTest {
         when(huntRepository.findById(id)).thenReturn(Optional.of(existing));
         when(huntMapper.mapToDto(existing)).thenReturn(expectedDto);
 
-        HuntResponseDTO result = huntService.updateHunt(id, input);
+        HuntResponseDTO result = huntService.updateHunt(id, input, authentication);
 
         assertSame(expectedDto, result);
         assertEquals("Scarlet", existing.getUsedGame());
