@@ -50,9 +50,9 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @PostMapping("/{userId}/avatar")
+    @PostMapping("/me/avatar")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<UserResponseDTO> uploadAvatar(@PathVariable Authentication authentication, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<UserResponseDTO> uploadAvatar(Authentication authentication, @RequestParam("file") MultipartFile file) {
         UserResponseDTO avatar = userService.uploadAvatar(authentication, file);
         return new ResponseEntity<>(avatar, HttpStatus.OK);
     }
