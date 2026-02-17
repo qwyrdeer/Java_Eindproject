@@ -8,6 +8,7 @@ import nl.novi.galacticEndgame.entities.ImageEntity;
 import nl.novi.galacticEndgame.entities.PokemonEntity;
 import nl.novi.galacticEndgame.entities.UserEntity;
 import nl.novi.galacticEndgame.enums.HuntStatus;
+import nl.novi.galacticEndgame.enums.ImageType;
 import nl.novi.galacticEndgame.exeptions.HuntNotFoundException;
 import nl.novi.galacticEndgame.exeptions.IncorrectInputException;
 import nl.novi.galacticEndgame.mappers.HuntMapper;
@@ -43,6 +44,8 @@ class HuntServiceTest {
     PokemonService pokemonService;
     @Mock
     UserService userService;
+    @Mock
+    ImageService imageService;
     @InjectMocks
     HuntService huntService;
 
@@ -465,64 +468,6 @@ class HuntServiceTest {
     }
 
     @Test
-    void createHuntThrowsWhenCreatingNewPokemonWithoutShinyImg() {
-        HuntRequestDTO input = new HuntRequestDTO();
-        input.setDexId(25L);
-        input.setName("Pikachu");
-
-        MultipartFile shinyImg = null;
-
-        assertThrows(IncorrectInputException.class, () -> huntService.createNewPokemon(input, shinyImg));
-        verify(pokemonRepository, never()).save(any());
-        verify(pokemonService, never()).uploadGif(anyLong(), any());
-    }
-
-    @Test
-    void createHuntThrowsWhenCreatingNewPokemonWithoutImg() {
-        HuntRequestDTO input = new HuntRequestDTO();
-        input.setDexId(25L);
-        input.setName("Pikachu");
-
-        MultipartFile shinyImg = mock(MultipartFile.class);
-        when(shinyImg.isEmpty()).thenReturn(true);
-
-        assertThrows(IncorrectInputException.class, () -> huntService.createNewPokemon(input, shinyImg));
-
-        verify(pokemonRepository, never()).save(any());
-        verify(pokemonService, never()).uploadGif(anyLong(), any());
-    }
-
-    @Test
-    void createHuntExistingPokemonAndShinyGifThrows() {
-        Authentication authentication = mock(Authentication.class);
-
-        HuntRequestDTO input = new HuntRequestDTO();
-        input.setDexId(25L);
-        input.setName("Pikachu");
-
-        UserEntity user = new UserEntity();
-        user.setUserId(1L);
-
-        PokemonEntity existingPokemon = new PokemonEntity();
-        existingPokemon.setDexId(25L);
-        existingPokemon.setName("Pikachu");
-        existingPokemon.setHuntCount(3L);
-
-        MultipartFile shinyImg = mock(MultipartFile.class);
-        when(shinyImg.isEmpty()).thenReturn(false);
-
-        when(pokemonRepository.findByDexId(25L)).thenReturn(Optional.of(existingPokemon));
-
-        IncorrectInputException exception = assertThrows(IncorrectInputException.class, () -> huntService.createHunt(input, shinyImg, authentication));
-
-        assertEquals("GIF can only be uploaded at the first hunt of a Pokémon", exception.getMessage());
-
-        verify(huntRepository, never()).save(any());
-        verify(pokemonRepository, never()).save(any());
-        verify(pokemonService, never()).uploadGif(anyLong(), any());
-    }
-
-    @Test
     void updateHuntWithoutInputThrows() {
         Long id = 17L;
         Authentication authentication = mock(Authentication.class);
@@ -651,5 +596,54 @@ class HuntServiceTest {
         when(huntRepository.findById(id)).thenReturn(Optional.of(hunt));
         huntService.deleteHunt(id);
         verify(huntRepository).delete(hunt);
+    }
+
+    @Test
+    void createNewPokemonUpdatesExistingPokemonWhenNameAndDexIdMatch() {
+        HuntRequestDTO input = new HuntRequestDTO();
+        input.setDexId(384L);
+        input.setName("Rayquaza");
+
+        MultipartFile file = mock(MultipartFile.class);
+
+        PokemonEntity existing = new PokemonEntity();
+        existing.setDexId(384L);
+        existing.setName("Rayquaza");
+        existing.setHuntCount(5L);
+
+        when(pokemonRepository.findByNameIgnoreCase("Rayquaza")).thenReturn(Optional.of(existing));
+
+        PokemonEntity result = huntService.createNewPokemon(input, file);
+
+        assertNotNull(result);
+        assertEquals(6L, result.getHuntCount());
+
+        verify(pokemonRepository, times(1)).findByNameIgnoreCase("Rayquaza");
+        verify(pokemonRepository, never()).save(any());
+        verify(imageService, never()).storeImage(any(), any());
+    }
+
+    @Test
+    void createNewPokemonThrowsExceptionWhenNameExistsWithDifferentDexId() {
+        HuntRequestDTO input = new HuntRequestDTO();
+        input.setDexId(385L);
+        input.setName("Rayquaza");
+
+        MultipartFile file = mock(MultipartFile.class);
+
+        PokemonEntity existing = new PokemonEntity();
+        existing.setDexId(384L);
+        existing.setName("Rayquaza");
+
+        when(pokemonRepository.findByNameIgnoreCase("Rayquaza")).thenReturn(Optional.of(existing));
+
+        IncorrectInputException exception = assertThrows(
+                IncorrectInputException.class, () -> huntService.createNewPokemon(input, file));
+
+        assertTrue(exception.getMessage().contains("already exists with dexId 384"));
+
+        verify(pokemonRepository, times(1)).findByNameIgnoreCase("Rayquaza");
+        verify(pokemonRepository, never()).save(any());
+        verify(imageService, never()).storeImage(any(), any());
     }
 }

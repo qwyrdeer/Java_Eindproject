@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface PokemonRepository extends JpaRepository<PokemonEntity, Long> {
 
     Optional<PokemonEntity> findByDexId(Long dexId);
-    Optional<PokemonEntity> findByName(String name);
+    Optional<PokemonEntity> findByNameIgnoreCase(String name);
     List<PokemonEntity> findAll();
 
     // is voorgesteld, maar nog ff checken \/

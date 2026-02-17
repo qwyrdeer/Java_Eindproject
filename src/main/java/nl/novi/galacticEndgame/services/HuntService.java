@@ -115,21 +115,17 @@ public class HuntService {
     public HuntResponseDTO createHunt(HuntRequestDTO input, MultipartFile shinyImg, Authentication authentication) {
         UserEntity user = userService.getCurrentUser(authentication);
 
-        PokemonEntity pokemon = pokemonRepository.findByDexId(input.getDexId())
-                .map(existing -> {
-                    if (shinyImg != null && !shinyImg.isEmpty()) {
-                        throw new IncorrectInputException(
-                                "GIF can only be uploaded at the first hunt of a Pokémon"
-                        );
-                    }
-                    return updateExistingPokemon(existing, input);
-                })
-                .orElseGet(() -> createNewPokemon(input, shinyImg));
+        Optional<PokemonEntity> byDexId = pokemonRepository.findByDexId(input.getDexId());
+        PokemonEntity pokemon;
+
+        if (byDexId.isPresent()) {
+            pokemon = updateExistingPokemon(byDexId.get(), input);
+        } else {
+            pokemon = createNewPokemon(input, shinyImg);
+        }
 
         HuntEntity hunt = createHuntEntity(user, pokemon, input);
-
         HuntEntity saved = huntRepository.save(hunt);
-
         return huntMapper.mapToDto(saved);
     }
 
@@ -145,8 +141,16 @@ public class HuntService {
     }
 
     PokemonEntity createNewPokemon(HuntRequestDTO input, MultipartFile shinyImg) {
-        if (shinyImg == null || shinyImg.isEmpty()) {
-            throw new IncorrectInputException("Adding a shiny GIF is required for new Pokémon");
+        Optional<PokemonEntity> byName =
+                pokemonRepository.findByNameIgnoreCase(input.getName());
+        if (byName.isPresent()) {
+            PokemonEntity existing = byName.get();
+            if (!existing.getDexId().equals(input.getDexId())) {
+                throw new IncorrectInputException(
+                        "Pokemon name '" + input.getName() + "' already exists with dexId " + existing.getDexId()
+                );
+            }
+            return updateExistingPokemon(existing, input);
         }
 
         PokemonEntity pokemon = new PokemonEntity();
