@@ -30,7 +30,7 @@ public class ProfileController {
         return new ResponseEntity<>(profile, HttpStatus.OK);
     }
 
-    @GetMapping("/profiles/{username}")
+    @GetMapping("/profile/{username}")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "find profile by username")
     public ResponseEntity<ProfileResponseDTO> findProfileByUser_UsernameIgnoreCase(@PathVariable String username) {

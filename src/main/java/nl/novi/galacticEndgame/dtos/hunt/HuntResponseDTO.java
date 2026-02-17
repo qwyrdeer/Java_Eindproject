@@ -15,6 +15,8 @@ public class HuntResponseDTO {
     private Long encounters;
     private PokemonResponseDTO pokemon;
     private Long userId;
+    private String username;
+    private String userAvatarUrl;
     private LocalDateTime createDate;
     private LocalDate finishDate;
     private LocalDateTime editDate;
@@ -76,6 +78,22 @@ public class HuntResponseDTO {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUserAvatarUrl() {
+        return userAvatarUrl;
+    }
+
+    public void setUserAvatarUrl(String userAvatarUrl) {
+        this.userAvatarUrl = userAvatarUrl;
     }
 
     public LocalDateTime getCreateDate() {

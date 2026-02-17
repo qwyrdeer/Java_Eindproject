@@ -28,6 +28,7 @@ public class UserController {
 
     @GetMapping("/id/{userId}")
     @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "find user by id")
     public ResponseEntity<UserResponseDTO> findUserById(@PathVariable Long userId) {
         UserResponseDTO user = userService.findUserByUserId(userId);
         return new ResponseEntity<>(user, HttpStatus.OK);
@@ -35,6 +36,7 @@ public class UserController {
 
     @GetMapping("/username/{username}")
     @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "find user by username")
     public ResponseEntity<UserResponseDTO> findUserByUser_UsernameIgnoreCase(@PathVariable String username) {
         UserResponseDTO user = userService.findUserByUser_UsernameIgnoreCase(username);
         return new ResponseEntity<>(user, HttpStatus.OK);
