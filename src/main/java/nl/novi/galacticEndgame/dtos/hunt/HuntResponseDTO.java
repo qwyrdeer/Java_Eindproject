@@ -1,6 +1,7 @@
 package nl.novi.galacticEndgame.dtos.hunt;
 
 import nl.novi.galacticEndgame.dtos.pokemon.PokemonResponseDTO;
+import nl.novi.galacticEndgame.dtos.user.UserSummaryDTO;
 import nl.novi.galacticEndgame.enums.HuntStatus;
 
 import java.time.LocalDate;
@@ -14,9 +15,7 @@ public class HuntResponseDTO {
     private HuntStatus huntStatus;
     private Long encounters;
     private PokemonResponseDTO pokemon;
-    private Long userId;
-    private String username;
-    private String userAvatarUrl;
+    private UserSummaryDTO user;
     private LocalDateTime createDate;
     private LocalDate finishDate;
     private LocalDateTime editDate;
@@ -72,28 +71,12 @@ public class HuntResponseDTO {
         this.pokemon = pokemon;
     }
 
-    public Long getUserId() {
-        return userId;
+    public UserSummaryDTO getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getUserAvatarUrl() {
-        return userAvatarUrl;
-    }
-
-    public void setUserAvatarUrl(String userAvatarUrl) {
-        this.userAvatarUrl = userAvatarUrl;
+    public void setUser(UserSummaryDTO user) {
+        this.user = user;
     }
 
     public LocalDateTime getCreateDate() {

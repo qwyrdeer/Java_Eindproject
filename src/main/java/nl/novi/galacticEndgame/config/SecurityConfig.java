@@ -50,7 +50,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/users", "/users/**").hasAnyRole("USER", "ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/hunts", "/hunts/**").hasAnyRole("USER", "ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/pokemon", "/pokemon/**").hasAnyRole("USER", "ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/uploads", "/uploads/**").hasAnyRole("USER", "ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/uploads", "/uploads/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/images").hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.POST, "/hunts").hasAnyRole("USER", "ADMIN")
@@ -60,7 +60,7 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.DELETE, "/hunts/{id}").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/users").hasRole("ADMIN")
-                        .anyRequest().denyAll()
+//                        .anyRequest().denyAll()
                 )
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();

@@ -27,6 +27,7 @@ public class UserMapper implements DTOMapper<UserResponseDTO, UserRequestDTO, Us
     public <D extends UserResponseDTO> D mapToDto(UserEntity model, D dto) {
         dto.setUserId(model.getUserId());
         dto.setUsername(model.getUsername());
+        dto.setUserRole(model.getUserRole());
 
         ImageEntity avatar = model.getUserAvatar();
         if (avatar != null) {
@@ -56,6 +57,7 @@ public class UserMapper implements DTOMapper<UserResponseDTO, UserRequestDTO, Us
         dto.setCreatedAt(user.getCreatedAt());
         dto.setUserId(user.getUserId());
         dto.setUsername(user.getUsername());
+        dto.setUserRole(user.getUserRole());
 
         ImageEntity avatar = user.getUserAvatar();
         if (avatar != null) {
@@ -82,6 +84,7 @@ public class UserMapper implements DTOMapper<UserResponseDTO, UserRequestDTO, Us
         entity.setUsername(userModel.getUsername());
         entity.setKcid(userModel.getKcid());
         entity.setCreatedAt(LocalDateTime.now());
+        entity.setUserRole(userModel.getUserRole());
         return entity;
     }
 

@@ -31,7 +31,7 @@ public class UserEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
     private ProfileEntity profileEntity;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties(value = "contentType")
     @JoinColumn(name = "avatar_image")
     private ImageEntity userAvatar;
@@ -41,6 +41,9 @@ public class UserEntity {
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
+
+    @Column(name = "user_role")
+    private String userRole;
 
     @Column(nullable = false)
     private boolean blocked = false;
@@ -79,6 +82,13 @@ public class UserEntity {
 
     // ------ getters & setters
 
+    public String getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
+    }
 
     public String getKcid() {
         return kcid;

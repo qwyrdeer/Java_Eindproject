@@ -1,8 +1,8 @@
 INSERT INTO images (original_name, stored_name, content_type, size, image_type, created_at)
 VALUES
-('AVATAR.PNG', 'avatar1.png', 'image/png', 1000, 'AVATAR', NOW()),
+('AVATAR.JPG', '6a7e0b6c-1d3e-4d90-a7df-3bfb9c1c70cb.jpg', 'image/jpg', 1000, 'AVATAR', NOW()),
 
-('TOGEPI.GIF', 'togepi.gif', 'image/gif', 2000, 'PKMN_GIF', NOW());
+('TOGEPI.GIF', '1faf6339-e68f-41c6-abb3-01a88877d0f1.gif', 'image/gif', 2000, 'PKMN_GIF', NOW());
 
 INSERT INTO users (kcid, username, avatar_image, create_date, last_login, blocked, blocked_until, block_reason)
 VALUES

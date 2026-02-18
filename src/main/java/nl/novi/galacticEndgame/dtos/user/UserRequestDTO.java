@@ -11,6 +11,8 @@ public class UserRequestDTO {
 
     private String kcid;
 
+    private String userRole;
+
     public String getUsername() {
         return username;
     }
@@ -25,5 +27,13 @@ public class UserRequestDTO {
 
     public void setKcid(String kcid) {
         this.kcid = kcid;
+    }
+
+    public String getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
     }
 }

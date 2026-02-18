@@ -119,4 +119,5 @@ public class HuntRequestDTO {
     public void setShinyImg(String shinyImg) {
         this.shinyImg = shinyImg;
     }
+
 }

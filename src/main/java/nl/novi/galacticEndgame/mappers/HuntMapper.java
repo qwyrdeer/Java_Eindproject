@@ -13,9 +13,11 @@ import java.util.List;
 public class HuntMapper implements DTOMapper<HuntResponseDTO, HuntRequestDTO, HuntEntity> {
 
     private final PokemonMapper pokemonMapper;
+    private final UserSummaryMapper userSummaryMapper;
 
-    public HuntMapper(PokemonMapper pokemonMapper) {
+    public HuntMapper(PokemonMapper pokemonMapper, UserSummaryMapper userSummaryMapper) {
         this.pokemonMapper = pokemonMapper;
+        this.userSummaryMapper = userSummaryMapper;
     }
 
     @Override
@@ -26,13 +28,7 @@ public class HuntMapper implements DTOMapper<HuntResponseDTO, HuntRequestDTO, Hu
         dto.setHuntMethod(model.getHuntMethod());
         dto.setEncounters(model.getEncounters());
         dto.setHuntStatus(model.getHuntStatus());
-        dto.setUserId(model.getUserEntity().getUserId());
-        dto.setUsername(model.getUserEntity().getUsername());
-        if (model.getUserEntity().getUserAvatar() != null) {
-            dto.setUserAvatarUrl(model.getUserEntity().getUserAvatar().getUrl());
-        } else {
-            dto.setUserAvatarUrl(null);
-        }
+        dto.setUser(userSummaryMapper.mapToDto(model.getUser()));
 
         dto.setCreateDate(model.getCreateDate());
         dto.setFinishDate(model.getFinishDate());

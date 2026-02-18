@@ -11,10 +11,19 @@ public class UserResponseDTO {
     private String username;
     private String userAvatarUrl;
     private LocalDateTime createdAt;
+    private String userRole;
     private ProfileResponseDTO profile;
     private List<HuntResponseDTO> hunts;
 
     // -- getter en setter
+
+    public String getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
+    }
 
     public Long getUserId() {
         return userId;

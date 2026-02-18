@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -68,35 +69,48 @@ public class UserService {
         return userMapper.mapToDto(userRepository.findAll());
     }
 
+    @Transactional
     public UserResponseDTO findOrCreateUser(Authentication authentication) {
-        JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
+
+        if (!(authentication instanceof JwtAuthenticationToken jwtAuth)) {
+            throw new UserNotFoundException("Invalid authentication type.");
+        }
         Jwt jwt = jwtAuth.getToken();
 
-        String kcid = jwt.getSubject();
-        String username = jwt.getClaim("preferred_username");
-
-        UserEntity user = findOrCreateUserEntity(kcid, username);
+        UserEntity user = findOrCreateUserEntity(jwt);
 
         return userMapper.mapToDto(user);
     }
 
     @Transactional
-    public UserEntity createUserEntity(String kcid, String username) {
-        UserEntity user = new UserEntity();
-        user.setKcid(kcid);
+    public UserEntity findOrCreateUserEntity(Jwt jwt) {
+        String kcid = jwt.getSubject();
+        String username = jwt.getClaimAsString("preferred_username");
+
+        Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
+        Map<String, Object> client = (Map<String, Object>) resourceAccess.get("galacticEndgame");
+        List<String> roles = (List<String>) client.get("roles");
+
+        String role = roles.contains("ROLE_ADMIN") ? "ROLE_ADMIN" : "ROLE_USER";
+
+        UserEntity user = userRepository.findByKcid(kcid).orElse(null);
+
+        if (user == null) {
+
+            user = new UserEntity();
+            user.setKcid(kcid);
+            user.setCreatedAt(LocalDateTime.now());
+
+            ProfileEntity profile = new ProfileEntity();
+            profile.setUser(user);
+            profile.setProfileText("");
+
+            user.setProfile(profile);
+        }
         user.setUsername(username);
-
-        ProfileEntity profile = new ProfileEntity();
-        profile.setUser(user);
-
-        user.setProfile(profile);
+        user.setUserRole(role);
 
         return userRepository.save(user);
-    }
-
-    private UserEntity findOrCreateUserEntity(String kcid, String username) {
-        return userRepository.findByKcid(kcid)
-                .orElseGet(() -> createUserEntity(kcid, username));
     }
 
     @Transactional
@@ -134,32 +148,12 @@ public class UserService {
 
     @Transactional
     public UserEntity getCurrentUser(Authentication authentication) {
-        if (!(authentication instanceof JwtAuthenticationToken jwtAuth)) {
-            throw new UserNotFoundException("Invalid authentication type.");
-        }
+
+        JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
 
         Jwt jwt = jwtAuth.getToken();
-        String kcid = jwt.getSubject();
 
-        return userRepository.findByKcid(kcid)
-                .orElseGet(() -> createUserFromJwt(jwt));
-    }
-
-    private UserEntity createUserFromJwt(Jwt jwt) {
-        UserEntity newUser = new UserEntity();
-
-        newUser.setKcid(jwt.getSubject());
-        newUser.setUsername(jwt.getClaimAsString("preferred_username"));
-        newUser.setCreatedAt(LocalDateTime.now());
-
-        UserEntity savedUser = userRepository.save(newUser);
-
-        ProfileEntity profile = new ProfileEntity();
-        profile.setUser(savedUser);
-        profile.setProfileText("");
-        profileRepository.save(profile);
-
-        return savedUser;
+        return findOrCreateUserEntity(jwt);
     }
 
     //admin?
